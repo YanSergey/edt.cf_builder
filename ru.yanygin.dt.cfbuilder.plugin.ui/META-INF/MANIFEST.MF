@@ -1,0 +1,12 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: EDT CF builder
+Bundle-SymbolicName: ru.yanygin.dt.cfbuilder.plugin.ui
+Bundle-Version: 1.0.0.qualifier
+Bundle-Activator: ru.yanygin.dt.cfbuilder.plugin.ui.Activator
+Bundle-Vendor: Yanygin Sergey
+Require-Bundle: org.eclipse.ui,
+ org.eclipse.core.runtime
+Bundle-RequiredExecutionEnvironment: JavaSE-11
+Automatic-Module-Name: ru.yanygin.dt.cfbuilder.plugin.ui
+Bundle-ActivationPolicy: lazy
