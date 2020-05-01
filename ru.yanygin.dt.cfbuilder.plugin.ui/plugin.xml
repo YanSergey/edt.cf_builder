@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="org.eclipse.ui.commands">
+      <command
+            id="ru.yanygin.dt.cfbuilder.plugin.ui.buildcf"
+            name="Собрать cf-файл">
+      </command>
+   </extension>
+   <extension
+         point="org.eclipse.ui.handlers">
+      <handler
+            class="ru.yanygin.dt.cfbuilder.plugin.ui.ExecutableExtensionFactory:ru.yanygin.dt.cfbuilder.plugin.ui.CfBuilderHandler"
+            commandId="ru.yanygin.dt.cfbuilder.plugin.ui.buildcf">
+      </handler>
+   </extension>
+   <extension
+         point="org.eclipse.ui.menus">
+      <menuContribution
+            allPopups="false"
+            locationURI="popup:com._1c.g5.v8.dt.navigator.ui.navigator.popup?endof=group.port">
+         <command
+               commandId="ru.yanygin.dt.cfbuilder.plugin.ui.buildcf"
+               icon="icons/cf16.png"
+               label="Собрать cf-файл"
+               style="push">
+            <visibleWhen
+                  checkEnabled="false">
+               <and>
+                  <with
+                        variable="selection">
+                     <count
+                           value="1">
+                     </count>
+                     <iterate
+                           operator="or">
+                        <instanceof
+                              value="org.eclipse.core.resources.IProject">
+                        </instanceof>
+                     </iterate>
+                  </with>
+               </and>
+            </visibleWhen>
+         </command>
+      </menuContribution>
+   </extension>
+
+</plugin>
