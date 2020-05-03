@@ -75,12 +75,12 @@ public class BuildJob extends Job {
 								}
 
 								progressBar.worked(1);
-								Thread.sleep(2000);
+								Thread.sleep(1000);
 							}
+							progressBar.done();
 							
-							if (status == Status.OK_STATUS) {
+							if (numSubTask == 2 && status == Status.OK_STATUS) {
 								progressBar.subTask(Messages.CfBuild_Convertion_Done);
-								progressBar.done();
 								Thread.sleep(5000);
 							}
 							progressDialog.close();
@@ -115,8 +115,8 @@ public class BuildJob extends Job {
 			else if (status == Status.CANCEL_STATUS) {
 				Activator.log(Activator.createInfoStatus(Messages.CfBuild_Cancel));
 				
-				buildResult = Messages.CfBuild_Cancel;
-				buildMessage = Messages.CfBuild_Cancel;
+				buildResult = Messages.CfBuild_Cancel.replace("%projectName%", projectContext.getProjectName());
+				buildMessage = buildResult;
 				
 			}
 			else {
@@ -172,29 +172,25 @@ public class BuildJob extends Job {
         });
 	}
 
-	private boolean checkBuildState() {
+	private boolean checkBuildState(String taskName) {
 		if (buildMonitor.isCanceled()) {
-			buildMonitor.subTask("Cancel");
+			buildMonitor.setTaskName("Cancel");
 			status = Status.CANCEL_STATUS;
 			return false;
 		}
 		
-		return (status == Status.OK_STATUS);
-	}
-
-	private void updateBuildState(String taskName) {	
 		numSubTask++;
-		buildMonitor.newChild(1, DECORATE);
-		buildMonitor.subTask(taskName);
-		
+		//buildMonitor.worked(1);
+		buildMonitor.setTaskName(taskName);
 		Activator.log(Activator.createInfoStatus(taskName));
+		
+		return (status == Status.OK_STATUS);
 	}
 	
 	private void convertProjectToXml() {
 		
-		if (!checkBuildState())
+		if (!checkBuildState(Messages.CfBuild_Run_Convertion))
 			return;
-		updateBuildState(Messages.CfBuild_Run_Convertion);
 		
 		Map <String, String> environmentVariables = new HashMap<>();
 		environmentVariables.put("workspaceDir",		tempDirs.getWorkspacePath());
@@ -208,9 +204,8 @@ public class BuildJob extends Job {
 	
 	private void createTempBase() {
 		
-		if (!checkBuildState())
+		if (!checkBuildState(Messages.CfBuild_Create_Base))
 			return;
-		updateBuildState(Messages.CfBuild_Create_Base);		
 		
 		Map <String, String> environmentVariables = new HashMap<>();
 		environmentVariables.put("PLATFORM_1C_PATH",	projectContext.getPlatformPath());
@@ -225,9 +220,8 @@ public class BuildJob extends Job {
 	
 	private void loadConfig() {
 		
-		if (!checkBuildState())
+		if (!checkBuildState(Messages.CfBuild_Load_Config))
 			return;
-		updateBuildState(Messages.CfBuild_Load_Config);		
 		
 		Map <String, String> environmentVariables = new HashMap<>();
 		environmentVariables.put("PLATFORM_1C_PATH", 	projectContext.getPlatformPath());
@@ -243,9 +237,8 @@ public class BuildJob extends Job {
 	
 	private void dumpConfig() {
 		
-		if (!checkBuildState())
+		if (!checkBuildState(Messages.CfBuild_Dump_Config))
 			return;
-		updateBuildState(Messages.CfBuild_Dump_Config);		
     	
     	File buildDir = new File(projectContext.getCfLocation());
     	if(!buildDir.exists()) {
@@ -292,7 +285,8 @@ public class BuildJob extends Job {
 		    	//System.out.println("Build abort!");
 	    		Activator.log(Activator.createErrorStatus(Messages.CfBuild_Abort));
 	    	}
-	    	
+			buildMonitor.worked(1);
+			
 		}
 		catch (IOException | InterruptedException e) {
 			e.printStackTrace();

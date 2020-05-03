@@ -4,7 +4,7 @@ Bundle-Name: EDT CF builder
 Bundle-SymbolicName: ru.yanygin.dt.cfbuilder.plugin.ui;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Bundle-Activator: ru.yanygin.dt.cfbuilder.plugin.ui.Activator
-Bundle-Vendor: Yanygin Sergey
+Bundle-Vendor: Yanygin Sergey (https://github.com/YanSergey)
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
  org.eclipse.xtext.ui;bundle-version="2.18.0",
