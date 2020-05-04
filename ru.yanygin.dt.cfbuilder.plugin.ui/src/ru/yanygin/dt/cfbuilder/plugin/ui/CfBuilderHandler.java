@@ -118,6 +118,8 @@ public class CfBuilderHandler extends AbstractHandler {
 			return "2020.1.0";
 		if (platformVersion.getMinor() == 18)
 			return "2020.2.0";
+		if (platformVersion.getMinor() == 19)
+			return "2020.3.0";
 		
 		return String.valueOf(platformVersion.getMajor())
 				.concat(".")
