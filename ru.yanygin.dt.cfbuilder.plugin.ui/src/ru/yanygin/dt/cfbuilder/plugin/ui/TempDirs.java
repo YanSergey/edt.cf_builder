@@ -32,7 +32,7 @@ public class TempDirs {
 		super();
 	}
 	
-	public boolean CreateTempDirs() {
+	public boolean createTempDirs() {
 		
 		this.tempDirPath = Files.createTempDir().getAbsolutePath();
 		
@@ -50,10 +50,10 @@ public class TempDirs {
 
 	}
 
-	public void DeleteDirs() {
+	public void deleteDirs() {
 		
 		recursiveDelete(new File(tempDirPath));
-        //System.out.println("Удаленный файл или папка: " + tempDirPath);
+		
 	}
 	
 	private static void recursiveDelete(File file) {
@@ -67,7 +67,8 @@ public class TempDirs {
             }
         }
 
-        file.delete();
+        if (!file.delete())
+        	Activator.log(Activator.createInfoStatus(Messages.CfBuild_Error_Delete_Temp.replace("%fileName%", file.getAbsolutePath())));
     }
 	
 

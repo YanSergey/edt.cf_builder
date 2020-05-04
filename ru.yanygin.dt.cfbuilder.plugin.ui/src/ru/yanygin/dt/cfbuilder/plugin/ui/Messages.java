@@ -15,6 +15,7 @@ class Messages extends NLS {
     public static String CfBuild_Error_Get_Project;
     public static String CfBuild_Error_Find_Platform;
     public static String CfBuild_Error_Create_Temp;
+    public static String CfBuild_Error_Delete_Temp;
     public static String CfBuild_Unknown_Error;
     
     public static String CfBuild_Build_Project_Name;

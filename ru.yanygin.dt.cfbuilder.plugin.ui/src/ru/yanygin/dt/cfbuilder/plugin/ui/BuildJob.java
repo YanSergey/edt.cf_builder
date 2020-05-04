@@ -7,7 +7,6 @@ import java.io.InputStreamReader;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
-import java.nio.file.LinkOption;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
@@ -28,8 +27,6 @@ public class BuildJob extends Job {
 	private int numSubTask = 0;
 	private IStatus status = Status.OK_STATUS;
 	private TempDirs tempDirs = new TempDirs();
-	private String buildResult;
-	private String buildMessage;
 	private String processOutput;
 	private ProjectContext projectContext;
 	private SubMonitor buildMonitor;
@@ -46,56 +43,56 @@ public class BuildJob extends Job {
 	@Override
 	protected IStatus run(IProgressMonitor m) {
 		
+		String buildResult;
+		String buildMessage;
+		
 		buildMonitor = SubMonitor.convert(m, 4);
 		
 		ProgressMonitorDialog progressDialog = new ProgressMonitorDialog(windowInfo.getShell());
 		
-		Display.getDefault().asyncExec(new Runnable() {
-            public void run() {
-                
-				try {
-					Thread.sleep(5000);
-					if (status != Status.OK_STATUS) {
-						return;
-					}
-					
-					progressDialog.run(true, true, new IRunnableWithProgress() {
-						@Override
-						public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
-
-							progressBar = SubMonitor.convert(monitor);
-							progressBar.beginTask(Messages.CfBuild_Run_Convertion, 60);
-
-							while (numSubTask < 2 && status == Status.OK_STATUS) {
-								if (progressBar.isCanceled()) {
-									buildMonitor.setCanceled(true);
-									progressBar.setTaskName(Messages.CfBuild_Cancel);
-									status = Status.CANCEL_STATUS;
-									return;
-								}
-
-								progressBar.worked(1);
-								Thread.sleep(1000);
-							}
-							progressBar.done();
-							
-							if (numSubTask == 2 && status == Status.OK_STATUS) {
-								progressBar.subTask(Messages.CfBuild_Convertion_Done);
-								Thread.sleep(5000);
-							}
-							progressDialog.close();
-						}
-					});
-				} catch (InvocationTargetException | InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+		Display.getDefault().asyncExec(() -> {
+			try {
+				Thread.sleep(5000);
+				if (status != Status.OK_STATUS) {
+					return;
 				}
-            }
-        });
+
+				progressDialog.run(true, true, new IRunnableWithProgress() {
+					@Override
+					public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
+
+						progressBar = SubMonitor.convert(monitor);
+						progressBar.beginTask(Messages.CfBuild_Run_Convertion, 60);
+
+						while (numSubTask < 2 && status == Status.OK_STATUS) {
+							if (progressBar.isCanceled()) {
+								buildMonitor.setCanceled(true);
+								progressBar.setTaskName(Messages.CfBuild_Cancel);
+								status = Status.CANCEL_STATUS;
+								return;
+							}
+
+							progressBar.worked(1);
+							Thread.sleep(1000);
+						}
+						progressBar.done();
+
+						if (numSubTask == 2 && status == Status.OK_STATUS) {
+							progressBar.subTask(Messages.CfBuild_Convertion_Done);
+							Thread.sleep(5000);
+						}
+						progressDialog.close();
+					}
+				});
+			} catch (InvocationTargetException | InterruptedException e) {
+				status = new Status(Status.ERROR, Activator.PLUGIN_ID, Messages.CfBuild_Unknown_Error);
+				Activator.log(Activator.createErrorStatus(e.getLocalizedMessage(), e));
+			}
+		});
 
 		Activator.log(Activator.createInfoStatus(Messages.CfBuild_Start_Build));
 	
-		if (tempDirs.CreateTempDirs()) {
+		if (tempDirs.createTempDirs()) {
 
 			convertProjectToXml();
 			createTempBase();
@@ -144,10 +141,10 @@ public class BuildJob extends Job {
 			buildMonitor.setTaskName(buildResult);
 			
 			
-			showPostBuildMessage();
+			showPostBuildMessage(buildResult, buildMessage);
 			
 			buildMonitor.beginTask(Messages.CfBuild_Clean_Temp, IProgressMonitor.UNKNOWN);
-	        tempDirs.DeleteDirs();
+	        tempDirs.deleteDirs();
 	        tempDirs = null;
 			buildMonitor.done();
 		}
@@ -155,23 +152,17 @@ public class BuildJob extends Job {
 			buildResult = Messages.CfBuild_Error_Create_Temp;
 			buildMessage = Messages.CfBuild_Error_Create_Temp;
 			
-			showPostBuildMessage();
+			showPostBuildMessage(buildResult, buildMessage);
 		}
 		
 		return status;
 	}
-
-	private void showPostBuildMessage() {
-		Display.getDefault().asyncExec(new Runnable() {
-            public void run() {
-    			MessageDialog.openInformation(
-    					windowInfo.getShell(),
-    					buildResult,
-    					buildMessage);
-            }
-        });
+	
+	private void showPostBuildMessage(String buildResult, String buildMessage) {
+		Display.getDefault().asyncExec(() -> 
+    			MessageDialog.openInformation(windowInfo.getShell(), buildResult, buildMessage));
 	}
-
+	
 	private boolean checkBuildState(String taskName) {
 		if (buildMonitor.isCanceled()) {
 			buildMonitor.setTaskName("Cancel");
@@ -180,7 +171,6 @@ public class BuildJob extends Job {
 		}
 		
 		numSubTask++;
-		//buildMonitor.worked(1);
 		buildMonitor.setTaskName(taskName);
 		Activator.log(Activator.createInfoStatus(taskName));
 		
@@ -259,7 +249,7 @@ public class BuildJob extends Job {
 	
 	private void runCommand(String command, Map<String, String> environmentVariables){
 		
-		processOutput = "";//System.lineSeparator();
+		processOutput = "";
     	Process process;
 		ProcessBuilder processBuilder = new ProcessBuilder();
 		
@@ -274,38 +264,33 @@ public class BuildJob extends Job {
 	    	
 	    	String line;
 	    	while ((line = reader.readLine()) != null) {
-	    		//System.out.println(line);
 	    		processOutput = processOutput.concat(System.lineSeparator()).concat(line);
 	    	}
 	    	
 	    	int exitCode = process.waitFor();
-	    	//System.out.println("Exited with error code : " + exitCode);
 	    	if (exitCode != 0) {
 	    		status = new Status(Status.ERROR, Activator.PLUGIN_ID, Messages.CfBuild_Abort);
-		    	//System.out.println("Build abort!");
 	    		Activator.log(Activator.createErrorStatus(Messages.CfBuild_Abort));
 	    	}
 			buildMonitor.worked(1);
 			
 		}
 		catch (IOException | InterruptedException e) {
-			e.printStackTrace();
-    		Activator.log(Activator.createErrorStatus(Messages.CfBuild_Unknown_Error.concat(processOutput), e));
-			
     		status = new Status(Status.ERROR, Activator.PLUGIN_ID, Messages.CfBuild_Unknown_Error);
+    		Activator.log(Activator.createErrorStatus(Messages.CfBuild_Unknown_Error.concat(processOutput), e));
 		}
 		
     }
 	
-	private static String readOutLogFile(String fileName) {
+	private String readOutLogFile(String fileName) {
 		String contents = "";
 
-		if (Files.exists(Paths.get(fileName), new LinkOption[]{LinkOption.NOFOLLOW_LINKS})) {
+		if (new File(fileName).exists()) {
 			try {
 				contents = new String(Files.readAllBytes(Paths.get(fileName)), Charset.forName("Windows-1251"));
 			} catch (IOException e) {
-				contents = "Ошибка чтения файла вывода";
-				e.printStackTrace();
+				status = new Status(Status.ERROR, Activator.PLUGIN_ID, Messages.CfBuild_Unknown_Error);
+				Activator.log(Activator.createErrorStatus(e.getLocalizedMessage(), e));
 			}	
 		}
 

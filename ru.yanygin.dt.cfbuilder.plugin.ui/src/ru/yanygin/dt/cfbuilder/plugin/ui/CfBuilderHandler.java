@@ -33,7 +33,6 @@ public class CfBuilderHandler extends AbstractHandler {
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		
         if (!PlatformUI.getWorkbench().saveAllEditors(true)) {
-    		Activator.log(Activator.createErrorStatus(Messages.CfBuild_Error_Save_Texts)); //TODO При нажатии Отмена в диалоге сохранения
             return null;
         }
         
@@ -73,7 +72,6 @@ public class CfBuilderHandler extends AbstractHandler {
 															cfName);
 		
 		BuildJob buildJob = new BuildJob(projectContext, windowInfo);
-		//buildJob.setUser(true);
 		buildJob.schedule();
 		
 		return null;
@@ -93,8 +91,7 @@ public class CfBuilderHandler extends AbstractHandler {
 			e.printStackTrace();
 			return null;
 		}
-        String platformPath = "\"".concat(currentRuntime.getInstallLocation().toString()).concat("\\1cv8.exe\"");
-        return platformPath;
+        return "\"".concat(currentRuntime.getInstallLocation().toString()).concat("\\1cv8.exe\"");
 	}
 	
 	private HashMap<String, String> askCfLocationPath(IWorkbenchWindow windowInfo) {
@@ -106,7 +103,7 @@ public class CfBuilderHandler extends AbstractHandler {
 		saveDialog.setFilterExtensions(filterExt);
 		saveDialog.setFilterNames(filterNames);
         
-		HashMap<String, String> cfName = new HashMap<String, String>();
+		HashMap<String, String> cfName = new HashMap<>();
 		
 		cfName.put("cfFullName", saveDialog.open());
 		cfName.put("cfLocation", saveDialog.getFilterPath());
@@ -122,13 +119,11 @@ public class CfBuilderHandler extends AbstractHandler {
 		if (platformVersion.getMinor() == 18)
 			return "2020.2.0";
 		
-		String edtVersion = String.valueOf(platformVersion.getMajor())
-							.concat(".")
-							.concat(String.valueOf(platformVersion.getMinor()))
-							.concat(".")
-							.concat(String.valueOf(platformVersion.getMicro()));
-		
-		return edtVersion;
+		return String.valueOf(platformVersion.getMajor())
+				.concat(".")
+				.concat(String.valueOf(platformVersion.getMinor()))
+				.concat(".")
+				.concat(String.valueOf(platformVersion.getMicro()));
 	}
 	
 }

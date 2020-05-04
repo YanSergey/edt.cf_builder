@@ -19,6 +19,7 @@ public class Activator extends Plugin {
 	// The shared instance
 	private static Activator plugin;
 
+	private static final String CF_BUILD_PREFIX = "[CF build] "; //$NON-NLS-1$
     private Injector injector;
     private BundleContext bundleContext;
 
@@ -65,15 +66,15 @@ public class Activator extends Plugin {
     }
 
 	public static IStatus createInfoStatus(String message) {
-		return new Status(IStatus.INFO, PLUGIN_ID, 0, "[CF build] " + message, (Throwable) null);
+		return new Status(IStatus.INFO, PLUGIN_ID, 0, CF_BUILD_PREFIX.concat(message), (Throwable) null);
 	}
 	
     public static IStatus createErrorStatus(String message, Throwable throwable) {
-        return new Status(IStatus.ERROR, PLUGIN_ID, 0, "[CF build] " + message, throwable);
+        return new Status(IStatus.ERROR, PLUGIN_ID, 0, CF_BUILD_PREFIX.concat(message), throwable);
     }
 	
     public static IStatus createErrorStatus(String message) {
-        return new Status(IStatus.ERROR, PLUGIN_ID, 0, "[CF build] " + message, (Throwable) null);
+        return new Status(IStatus.ERROR, PLUGIN_ID, 0, CF_BUILD_PREFIX.concat(message), (Throwable) null);
     }    
     public static void log(IStatus status) {
         plugin.getLog().log(status);
