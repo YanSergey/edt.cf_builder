@@ -1,10 +1,10 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: EDT CF builder
+Bundle-Name: %Bundle-Name
 Bundle-SymbolicName: ru.yanygin.dt.cfbuilder.plugin.ui;singleton:=true
-Bundle-Version: 1.0.0.qualifier
+Bundle-Version: 1.0.1.qualifier
 Bundle-Activator: ru.yanygin.dt.cfbuilder.plugin.ui.Activator
-Bundle-Vendor: Yanygin Sergey (https://github.com/YanSergey)
+Bundle-Vendor: %Bundle-Vendor
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
  org.eclipse.xtext.ui;bundle-version="2.18.0",

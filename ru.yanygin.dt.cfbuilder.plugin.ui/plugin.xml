@@ -5,7 +5,7 @@
          point="org.eclipse.ui.commands">
       <command
             id="ru.yanygin.dt.cfbuilder.plugin.ui.buildcf"
-            name="Собрать cf-файл">
+            name="%command.BuildCfname">
       </command>
    </extension>
    <extension
@@ -23,7 +23,7 @@
          <command
                commandId="ru.yanygin.dt.cfbuilder.plugin.ui.buildcf"
                icon="icons/cf16.png"
-               label="Собрать cf-файл"
+               label="%command.BuildCf.label"
                style="push">
             <visibleWhen
                   checkEnabled="false">
