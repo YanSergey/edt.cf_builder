@@ -20,14 +20,14 @@ public class Activator extends Plugin {
 	private static Activator plugin;
 
 	private static final String CF_BUILD_PREFIX = "[CF build] "; //$NON-NLS-1$
-    private Injector injector;
-    private BundleContext bundleContext;
+	private Injector injector;
+	private BundleContext bundleContext;
 
 	@Override
 	public void start(BundleContext context) throws Exception {
 		plugin = this;
 		super.start(context);
-        this.bundleContext = context;
+		this.bundleContext = context;
 	}
 
 	@Override
@@ -35,48 +35,46 @@ public class Activator extends Plugin {
 		super.stop(context);
 		plugin = null;
 	}
-	
-    protected BundleContext getContext() {
-        return bundleContext;
-    }
+
+	protected BundleContext getContext() {
+		return bundleContext;
+	}
 
 	public static Activator getDefault() {
 		return plugin;
 	}
-    
+
 	public synchronized Injector getInjector() {
 		if (injector == null)
 			injector = createInjector();
 
 		return injector;
-    }
+	}
 
-    private Injector createInjector() {
-        try
-        {
-            return Guice.createInjector(new ExternalDependenciesModule(this));
-        }
-        catch (Exception e)
-        {
-            log(createErrorStatus("Failed to create injector for " //$NON-NLS-1$
-                + getBundle().getSymbolicName(), e));
-            throw new RuntimeException("Failed to create injector for " //$NON-NLS-1$
-                + getBundle().getSymbolicName(), e);
-        }
-    }
+	private Injector createInjector() {
+		try {
+			return Guice.createInjector(new ExternalDependenciesModule(this));
+		} catch (Exception e) {
+			log(createErrorStatus("Failed to create injector for " //$NON-NLS-1$
+					+ getBundle().getSymbolicName(), e));
+			throw new RuntimeException("Failed to create injector for " //$NON-NLS-1$
+					+ getBundle().getSymbolicName(), e);
+		}
+	}
 
 	public static IStatus createInfoStatus(String message) {
 		return new Status(IStatus.INFO, PLUGIN_ID, 0, CF_BUILD_PREFIX.concat(message), (Throwable) null);
 	}
-	
-    public static IStatus createErrorStatus(String message, Throwable throwable) {
-        return new Status(IStatus.ERROR, PLUGIN_ID, 0, CF_BUILD_PREFIX.concat(message), throwable);
-    }
-	
-    public static IStatus createErrorStatus(String message) {
-        return new Status(IStatus.ERROR, PLUGIN_ID, 0, CF_BUILD_PREFIX.concat(message), (Throwable) null);
-    }    
-    public static void log(IStatus status) {
-        plugin.getLog().log(status);
-    }
+
+	public static IStatus createErrorStatus(String message, Throwable throwable) {
+		return new Status(IStatus.ERROR, PLUGIN_ID, 0, CF_BUILD_PREFIX.concat(message), throwable);
+	}
+
+	public static IStatus createErrorStatus(String message) {
+		return new Status(IStatus.ERROR, PLUGIN_ID, 0, CF_BUILD_PREFIX.concat(message), (Throwable) null);
+	}
+
+	public static void log(IStatus status) {
+		plugin.getLog().log(status);
+	}
 }

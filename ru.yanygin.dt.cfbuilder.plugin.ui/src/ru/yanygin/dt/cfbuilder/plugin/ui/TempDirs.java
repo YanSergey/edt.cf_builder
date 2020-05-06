@@ -5,7 +5,7 @@ import java.io.File;
 import com.google.common.io.Files;
 
 public class TempDirs {
-	
+
 	private String tempDirPath;
 	private String workspacePath;
 	private String xmlPath;
@@ -27,15 +27,15 @@ public class TempDirs {
 	public String getLogFilePath() {
 		return logFilePath;
 	}
-		
+
 	public TempDirs() {
 		super();
 	}
-	
+
 	public boolean createTempDirs() {
-		
+
 		this.tempDirPath = Files.createTempDir().getAbsolutePath();
-		
+
 		this.workspacePath	= tempDirPath + "\\ws";
 		this.xmlPath		= tempDirPath + "\\xml";
 		this.onesBasePath	= tempDirPath + "\\base";
@@ -51,25 +51,24 @@ public class TempDirs {
 	}
 
 	public void deleteDirs() {
-		
+
 		recursiveDelete(new File(tempDirPath));
-		
+
 	}
-	
+
 	private static void recursiveDelete(File file) {
 
-        if (!file.exists())
-            return;
+		if (!file.exists())
+			return;
 
-        if (file.isDirectory()) {
-            for (File f : file.listFiles()) {
-                recursiveDelete(f);
-            }
-        }
+		if (file.isDirectory()) {
+			for (File f : file.listFiles()) {
+				recursiveDelete(f);
+			}
+		}
 
-        if (!file.delete())
-        	Activator.log(Activator.createInfoStatus(Messages.CfBuild_Error_Delete_Temp.replace("%fileName%", file.getAbsolutePath())));
-    }
-	
+		if (!file.delete())
+			Activator.log(Activator.createInfoStatus(Messages.CfBuild_Error_Delete_Temp.replace("%fileName%", file.getAbsolutePath())));
+	}
 
 }

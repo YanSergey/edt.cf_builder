@@ -15,7 +15,7 @@ public class ExternalDependenciesModule extends AbstractServiceAwareModule {
 	@Override
 	protected void doConfigure() {
 		bind(IRuntimeVersionSupport.class).toService();
-        bind(IResolvableRuntimeInstallationManager.class).toService();
+		bind(IResolvableRuntimeInstallationManager.class).toService();
 	}
 
 }

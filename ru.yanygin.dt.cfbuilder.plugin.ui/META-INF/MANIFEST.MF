@@ -16,3 +16,5 @@ Require-Bundle: org.eclipse.ui,
 Bundle-RequiredExecutionEnvironment: JavaSE-11
 Automatic-Module-Name: ru.yanygin.dt.cfbuilder.plugin.ui
 Bundle-ActivationPolicy: lazy
+Export-Package: ru.yanygin.dt.cfbuilder.plugin.ui
+
