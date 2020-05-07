@@ -18,4 +18,6 @@
 ### Установка:
 1. Скачать jar файл со страницы релизов [![Download](https://img.shields.io/github/release/YanSergey/edt.cf_builder?label=download&style=flat)](https://github.com/YanSergey/edt.cf_builder/releases/latest)
 
-2. Поместить файл в каталог с установленным EDT в подкаталог **plugins**
+2. Поместить файл в каталог с установленным EDT в подкаталог "***plugins***"
+
+Для сборки cf-файла используется создание временных ИБ и workspace в каталоге для временных файлов EDT "***java.io.tmpdir***", заданном в "***1cedt.ini***". Необходимо учитывать наличие свободного пространства.
