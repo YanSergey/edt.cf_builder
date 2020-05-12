@@ -1,12 +1,15 @@
 package ru.yanygin.dt.cfbuilder.plugin.ui;
 
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.osgi.util.NLS;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.ui.IWorkbenchWindow;
 
 /**
  * Данный класс - представитель локализации механизма строк в Eclipse.
  */
 class Messages extends NLS {
-	private static final String BUNDLE_NAME = "ru.yanygin.dt.cfbuilder.plugin.ui.messages";
+	private static final String BUNDLE_NAME = "ru.yanygin.dt.cfbuilder.plugin.ui.messages"; //$NON-NLS-1$
 
 	public static String CfBuild_Start_Build;
 	public static String CfBuild_End_Build;
@@ -40,4 +43,14 @@ class Messages extends NLS {
 
 	private Messages() {
 	}
+	
+	public static void showPostBuildMessage(IWorkbenchWindow windowInfo, String buildMessage) {
+		showPostBuildMessage(windowInfo, buildMessage, buildMessage);
+	}
+	
+	public static void showPostBuildMessage(IWorkbenchWindow windowInfo, String buildTitle, String buildMessage) {
+		Display.getDefault()
+				.asyncExec(() -> MessageDialog.openInformation(windowInfo.getShell(), buildTitle, buildMessage));
+	}
+
 }

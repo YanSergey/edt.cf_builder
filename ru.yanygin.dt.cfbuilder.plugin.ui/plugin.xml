@@ -5,7 +5,11 @@
          point="org.eclipse.ui.commands">
       <command
             id="ru.yanygin.dt.cfbuilder.plugin.ui.buildcf"
-            name="%command.BuildCfname">
+            name="%command.BuildCf.name">
+      </command>
+      <command
+            id="ru.yanygin.dt.cfbuilder.plugin.ui.importcf"
+            name="%command.ImportCf.name">
       </command>
    </extension>
    <extension

@@ -7,6 +7,7 @@ import java.io.InputStreamReader;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
@@ -22,171 +23,102 @@ import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IWorkbenchWindow;
 
+import com._1c.g5.v8.dt.export.ExportException;
+import com._1c.g5.v8.dt.export.IExportService;
+import com._1c.g5.v8.dt.export.IExportServiceRegistry;
+import com._1c.g5.v8.dt.metadata.mdclass.Configuration;
+import com._1c.g5.v8.dt.platform.version.Version;
+
 public class BuildJob extends Job {
 
-	private int numSubTask = 0;
 	private IStatus status = Status.OK_STATUS;
-	private TempDirs tempDirs = new TempDirs();
+	private TempDirs tempDirs;
 	private String processOutput;
 	private ProjectContext projectContext;
-	private SubMonitor buildMonitor;
-	private SubMonitor progressBar;
-
+	private IProgressMonitor buildMonitor;
 	private IWorkbenchWindow windowInfo;
 
-	public BuildJob(ProjectContext projectContext, IWorkbenchWindow windowInfo) {
+	public BuildJob(ProjectContext projectContext, IWorkbenchWindow windowInfo, TempDirs tempDirs) {
 		super(Messages.CfBuild_Build_Project_Name.replace("%projectName%", projectContext.getProjectName()));
+		
 		this.projectContext = projectContext;
 		this.windowInfo = windowInfo;
+		this.tempDirs = tempDirs;
 	}
 
 	@Override
-	protected IStatus run(IProgressMonitor m) {
+	protected IStatus run(IProgressMonitor progressMonitor) {
 
 		String buildResult;
 		String buildMessage;
+		
+		this.buildMonitor = progressMonitor;
 
-		buildMonitor = SubMonitor.convert(m, 4);
+		createTempBase();
+		loadConfig();
+		dumpConfig();
 
-		ProgressMonitorDialog progressDialog = new ProgressMonitorDialog(windowInfo.getShell());
+		if (status == Status.OK_STATUS) {
+			Activator.log(Activator.createInfoStatus(Messages.CfBuild_End_Build.replace("%projectName%", projectContext.getProjectName())));
 
-		Display.getDefault().asyncExec(() -> {
-			try {
-				Thread.sleep(5000);
-				if (status != Status.OK_STATUS) {
-					return;
-				}
+			buildResult = Messages.CfBuild_Done;
+			buildMessage = Messages.CfBuild_File_CF_Save_Is
+							.concat(System.lineSeparator())
+							.concat(System.lineSeparator())
+							.concat(projectContext.getCfFullName());
 
-				progressDialog.run(true, true, new IRunnableWithProgress() {
-					@Override
-					public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
-
-						progressBar = SubMonitor.convert(monitor);
-						progressBar.beginTask(Messages.CfBuild_Run_Convertion, 60);
-
-						while (numSubTask < 2 && status == Status.OK_STATUS) {
-							if (progressBar.isCanceled()) {
-								buildMonitor.setCanceled(true);
-								progressBar.setTaskName(Messages.CfBuild_Cancel);
-								status = Status.CANCEL_STATUS;
-								return;
-							}
-
-							progressBar.worked(1);
-							Thread.sleep(1000);
-						}
-						progressBar.done();
-
-						if (numSubTask == 2 && status == Status.OK_STATUS) {
-							progressBar.subTask(Messages.CfBuild_Convertion_Done);
-							Thread.sleep(5000);
-						}
-						progressDialog.close();
-					}
-				});
-			} catch (InvocationTargetException | InterruptedException e) {
-				status = new Status(Status.ERROR, Activator.PLUGIN_ID, Messages.CfBuild_Unknown_Error);
-				Activator.log(Activator.createErrorStatus(e.getLocalizedMessage(), e));
-			}
-		});
-
-		Activator.log(Activator.createInfoStatus(Messages.CfBuild_Start_Build));
-
-		if (tempDirs.createTempDirs()) {
-
-			convertProjectToXml();
-			createTempBase();
-			loadConfig();
-			dumpConfig();
-
-			if (status == Status.OK_STATUS) {
-				Activator.log(Activator.createInfoStatus(Messages.CfBuild_End_Build));
-
-				buildResult = Messages.CfBuild_Done;
-				buildMessage = Messages.CfBuild_File_CF_Save_Is
-										.concat(System.lineSeparator())
-										.concat(System.lineSeparator())
-										.concat(projectContext.getCfFullName());
-
-			} else if (status == Status.CANCEL_STATUS) {
-				Activator.log(Activator.createInfoStatus(Messages.CfBuild_Cancel));
-
-				buildResult = Messages.CfBuild_Cancel.replace("%projectName%", projectContext.getProjectName());
-				buildMessage = buildResult;
-
-			} else {
-				String outLog = readOutLogFile(tempDirs.getLogFilePath());
-				Activator.log(Activator.createErrorStatus(processOutput));
-				Activator.log(Activator.createErrorStatus(outLog));
-
-				buildResult = Messages.CfBuild_Abort;
-				buildMessage = Messages.CfBuild_Abort;
-
-				if (!processOutput.isEmpty()) {
-					buildMessage = buildMessage
-									.concat(System.lineSeparator())
-									.concat(System.lineSeparator())
-									.concat(processOutput);
-				}
-				if (!outLog.isEmpty()) {
-					buildMessage = buildMessage
-									.concat(System.lineSeparator())
-									.concat(System.lineSeparator())
-									.concat(outLog);
-				}
-			}
-
-			buildMonitor.setTaskName(buildResult);
-
-			showPostBuildMessage(buildResult, buildMessage);
-
-			buildMonitor.beginTask(Messages.CfBuild_Clean_Temp, IProgressMonitor.UNKNOWN);
-			tempDirs.deleteDirs();
-			tempDirs = null;
-			buildMonitor.done();
+		} else if (status == Status.CANCEL_STATUS) {
+			buildResult = Messages.CfBuild_Cancel.replace("%projectName%", projectContext.getProjectName());
+			buildMessage = buildResult;
+			Activator.log(Activator.createInfoStatus(buildResult));
+			
 		} else {
-			buildResult = Messages.CfBuild_Error_Create_Temp;
-			buildMessage = Messages.CfBuild_Error_Create_Temp;
+			buildResult = Messages.CfBuild_Abort;
+			buildMessage = Messages.CfBuild_Abort;
 
-			showPostBuildMessage(buildResult, buildMessage);
+			if (!processOutput.isEmpty()) {
+				Activator.log(Activator.createErrorStatus(processOutput));
+				buildMessage = buildMessage
+							.concat(System.lineSeparator())
+							.concat(System.lineSeparator())
+							.concat(processOutput);
+			}
+
+			String outLog = readOutLogFile(tempDirs.getLogFilePath());
+			if (!outLog.isEmpty()) {
+				Activator.log(Activator.createErrorStatus(outLog));
+				buildMessage = buildMessage
+							.concat(System.lineSeparator())
+							.concat(System.lineSeparator())
+							.concat(outLog);
+			}
 		}
+
+		buildMonitor.setTaskName(buildResult);
+
+		Messages.showPostBuildMessage(windowInfo, buildResult, buildMessage);
+
+		tempDirs.deleteDirs(buildMonitor);
 
 		return status;
 	}
 
-	private void showPostBuildMessage(String buildResult, String buildMessage) {
-		Display.getDefault()
-				.asyncExec(() -> MessageDialog.openInformation(windowInfo.getShell(), buildResult, buildMessage));
-	}
-
 	private boolean checkBuildState(String taskName) {
 		if (buildMonitor.isCanceled()) {
-			buildMonitor.setTaskName("Cancel");
 			status = Status.CANCEL_STATUS;
+			String infoMessage = Messages.CfBuild_Cancel.replace("%projectName%", projectContext.getProjectName());
+			buildMonitor.setTaskName(infoMessage);
+			Activator.log(Activator.createInfoStatus(infoMessage));
 			return false;
 		}
 
-		numSubTask++;
-		buildMonitor.setTaskName(taskName);
-		Activator.log(Activator.createInfoStatus(taskName));
+		if (status.isOK()) {
+			buildMonitor.beginTask(taskName, IProgressMonitor.UNKNOWN);
+			Activator.log(Activator.createInfoStatus(taskName));
+			return true;
+		}
 
-		return (status == Status.OK_STATUS);
-	}
-
-	private void convertProjectToXml() {
-
-		if (!checkBuildState(Messages.CfBuild_Run_Convertion))
-			return;
-
-		Map<String, String> environmentVariables = new HashMap<>();
-		environmentVariables.put("workspaceDir",	tempDirs.getWorkspacePath());
-		environmentVariables.put("outXmlDir",		tempDirs.getXmlPath());
-		environmentVariables.put("projectDir",		projectContext.getProjectPath());
-
-		String command = "ring -l warn edt@" + projectContext.getEdtVersion()
-				+ " workspace export --project %projectDir% --configuration-files %outXmlDir% --workspace-location %workspaceDir%";
-		runCommand(command, environmentVariables);
-
+		return false;
 	}
 
 	private void createTempBase() {
@@ -270,7 +202,6 @@ public class BuildJob extends Job {
 				status = new Status(Status.ERROR, Activator.PLUGIN_ID, Messages.CfBuild_Abort);
 				Activator.log(Activator.createErrorStatus(Messages.CfBuild_Abort));
 			}
-			buildMonitor.worked(1);
 
 		} catch (IOException | InterruptedException e) {
 			status = new Status(Status.ERROR, Activator.PLUGIN_ID, Messages.CfBuild_Unknown_Error);

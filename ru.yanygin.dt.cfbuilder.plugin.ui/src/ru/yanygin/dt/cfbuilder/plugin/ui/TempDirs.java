@@ -2,6 +2,9 @@ package ru.yanygin.dt.cfbuilder.plugin.ui;
 
 import java.io.File;
 
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.SubMonitor;
+
 import com.google.common.io.Files;
 
 public class TempDirs {
@@ -50,10 +53,10 @@ public class TempDirs {
 
 	}
 
-	public void deleteDirs() {
-
+	public void deleteDirs(IProgressMonitor buildMonitor) {
+		buildMonitor.beginTask(Messages.CfBuild_Clean_Temp, IProgressMonitor.UNKNOWN);
 		recursiveDelete(new File(tempDirPath));
-
+		buildMonitor.done();
 	}
 
 	private static void recursiveDelete(File file) {
