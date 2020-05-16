@@ -8,7 +8,6 @@ public class ProjectContext {
 	private String projectPath;
 
 	private String platformPath;
-	private String edtVersion;
 
 	private String cfFullName;
 	private String cfLocation;
@@ -25,9 +24,6 @@ public class ProjectContext {
 		return platformPath;
 	}
 
-	public String getEdtVersion() {
-		return edtVersion;
-	}
 
 	public String getCfFullName() {
 		return cfFullName;
@@ -37,15 +33,13 @@ public class ProjectContext {
 		return cfLocation;
 	}
 
-	public ProjectContext(String projectName, String projectPath, String platformPath, String edtVersion,
-			HashMap<String, String> cfName) {
+	public ProjectContext(String projectName, String projectPath, String platformPath, HashMap<String, String> cfNameMap) {
 
 		this.projectName = projectName;
 		this.projectPath = projectPath;
 		this.platformPath = platformPath;
-		this.edtVersion = edtVersion;
-		this.cfFullName = cfName.get("cfFullName");
-		this.cfLocation = cfName.get("cfLocation");
+		this.cfFullName = cfNameMap.get("cfFullName");
+		this.cfLocation = cfNameMap.get("cfLocation");
 
 	}
 

@@ -3,6 +3,7 @@ package ru.yanygin.dt.cfbuilder.plugin.ui;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.text.MessageFormat;
 import java.util.HashMap;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
@@ -66,8 +67,8 @@ public class CfBuilderHandler extends AbstractHandler {
 		IWorkbenchWindow windowInfo = HandlerUtil.getActiveWorkbenchWindowChecked(event);
 		IWorkbenchPage page = windowInfo.getActivePage();
 		
-		HashMap<String, String> cfName = askCfLocationPath(windowInfo);
-		if (cfName.get("cfFullName") == null) {
+		HashMap<String, String> cfNameMap = Actions.askCfLocationPath(windowInfo);
+		if (cfNameMap.get("cfFullName") == null) {
 			Activator.log(Activator.createErrorStatus(Messages.CfBuild_Set_CF_Error));
 			return null;
 		}
@@ -106,7 +107,8 @@ public class CfBuilderHandler extends AbstractHandler {
 						SubMonitor progressBar = SubMonitor.convert(monitor);
 						progressBar.subTask(Messages.CfBuild_Run_Convertion);
 						
-						Activator.log(Activator.createInfoStatus(Messages.CfBuild_Start_Build.replace("%projectName%", projectName)));
+						//Activator.log(Activator.createInfoStatus(Messages.CfBuild_Start_Build.replace("%projectName%", projectName)));
+						Activator.log(Activator.createInfoStatus(MessageFormat.format(Messages.CfBuild_Start_Build, projectName)));
 
 						IExportService exportService = null;
 						IStatus status;
@@ -134,15 +136,16 @@ public class CfBuilderHandler extends AbstractHandler {
 							return;
 						}
 
-						String platformPath = getRuntimeDesignerPath(project);
+						//String platformPath = getRuntimeDesignerPath(project);
+						String platformPath = Actions.findRuntimeDesignerPath(project, runtimeVersionSupport, resolvableRuntimeInstallationManager);
 						if (platformPath == null) {
 							Activator.log(Activator.createErrorStatus(Messages.CfBuild_Error_Find_Platform.replace("%platformVersion%", version.toString())));
 							return;
 						}
 
-						String edtVersion = identifyEdtVersion();
+						//String edtVersion = identifyEdtVersion();
 
-						ProjectContext projectContext = new ProjectContext(projectName, projectPath, platformPath, edtVersion, cfName);
+						ProjectContext projectContext = new ProjectContext(projectName, projectPath, platformPath, cfNameMap);
 
 						BuildJob buildJob = new BuildJob(projectContext, windowInfo, tempDirs);
 						buildJob.schedule();
@@ -164,6 +167,7 @@ public class CfBuilderHandler extends AbstractHandler {
 
 	}
 
+	/*
 	private String getRuntimeDesignerPath(IProject project) {
 		Version version = runtimeVersionSupport.getRuntimeVersion(project);
 		
@@ -213,5 +217,6 @@ public class CfBuilderHandler extends AbstractHandler {
 				.concat(".")
 				.concat(String.valueOf(platformVersion.getMicro()));
 	}
-
+	*/
+	
 }
