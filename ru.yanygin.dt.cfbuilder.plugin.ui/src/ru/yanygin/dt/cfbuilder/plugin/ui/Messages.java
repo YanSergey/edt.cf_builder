@@ -20,6 +20,7 @@ class Messages extends NLS {
 	public static String CfBuild_Error_Create_Temp;
 	public static String CfBuild_Error_Delete_Temp;
 	public static String CfBuild_Unknown_Error;
+	public static String CfBuild_Error;
 
 	public static String CfBuild_Build_Project_Name;
 	public static String CfBuild_Run_Convertion;
@@ -36,6 +37,8 @@ class Messages extends NLS {
 	public static String CfBuild_Set_CF_Error;
 	public static String CfBuild_File_CF_Save_Is;
 	public static String CfBuild_1C_Files;
+
+	public static String CfBuild_Import_Project;
 
 	static {
 		NLS.initializeMessages(BUNDLE_NAME, Messages.class);

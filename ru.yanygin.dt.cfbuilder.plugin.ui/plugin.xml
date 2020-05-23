@@ -42,10 +42,14 @@
                            value="1">
                      </count>
                      <iterate
-                           operator="or">
+                           operator="and">
                         <instanceof
                               value="org.eclipse.core.resources.IProject">
                         </instanceof>
+                        <test
+                              property="org.eclipse.core.resources.projectNature"
+                              value="com._1c.g5.v8.dt.core.V8ConfigurationNature">
+                        </test>
                      </iterate>
                   </with>
                </and>
@@ -84,12 +88,69 @@
             <visibleWhen
                   checkEnabled="false">
                <and>
+                  <reference
+                        definitionId="org.eclipse.core.resources.IWorkspaceRoot">
+                  </reference>
+               </and>
+            </visibleWhen>
+         </command>
+         <command
+               commandId="ru.yanygin.dt.cfbuilder.plugin.ui.importcf"
+               icon="icons/cf16.png"
+               label="Импорт (тест1) ок"
+               style="push">
+            <visibleWhen
+                  checkEnabled="false">
+               <or>
                   <with
                         variable="selection">
-                     <instanceof
-                           value="org.eclipse.core.resources.IWorkspaceRoot">
-                     </instanceof>
+                     <count
+                           value="1">
+                     </count>
+                     <iterate
+                           operator="or">
+                        <instanceof
+                              value="org.eclipse.core.resources.IProject">
+                        </instanceof>
+                     </iterate>
                   </with>
+                  <with
+                        variable="selection">
+                     <count
+                           value="0">
+                     </count>
+                  </with>
+               </or>
+            </visibleWhen>
+         </command>
+         <command
+               commandId="ru.yanygin.dt.cfbuilder.plugin.ui.importcf"
+               icon="icons/cf16.png"
+               label="Импорт (тест2) ок"
+               style="push">
+            <visibleWhen
+                  checkEnabled="false">
+               <and>
+                  <or>
+                     <with
+                           variable="selection">
+                        <count
+                              value="1">
+                        </count>
+                        <iterate
+                              operator="or">
+                           <instanceof
+                                 value="org.eclipse.core.resources.IProject">
+                           </instanceof>
+                        </iterate>
+                     </with>
+                     <with
+                           variable="selection">
+                        <count
+                              value="0">
+                        </count>
+                     </with>
+                  </or>
                </and>
             </visibleWhen>
          </command>
@@ -100,34 +161,8 @@
          <command
                commandId="ru.yanygin.dt.cfbuilder.plugin.ui.importcf"
                icon="icons/cf16.png"
+               label="%command.ImportCf.name"
                style="push">
-         </command>
-      </menuContribution>
-      <menuContribution
-            allPopups="false"
-            locationURI="popup:com._1c.g5.v8.dt.navigator.ui.navigator.popup?endof=group.port">
-         <command
-               commandId="ru.yanygin.dt.cfbuilder.plugin.ui.buildcf"
-               icon="icons/cf16.png"
-               label="Собрать cf-файл (тест)"
-               style="push">
-            <visibleWhen
-                  checkEnabled="false">
-               <and>
-                  <with
-                        variable="selection">
-                     <count
-                           value="1">
-                     </count>
-                     <iterate
-                           operator="or">
-                        <instanceof
-                              value="com._1c.g5.v8.dt.core.platform.IV8Project">
-                        </instanceof>
-                     </iterate>
-                  </with>
-               </and>
-            </visibleWhen>
          </command>
       </menuContribution>
    </extension>

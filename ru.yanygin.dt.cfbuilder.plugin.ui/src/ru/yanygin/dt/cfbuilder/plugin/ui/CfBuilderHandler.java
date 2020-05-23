@@ -67,8 +67,8 @@ public class CfBuilderHandler extends AbstractHandler {
 		IWorkbenchWindow windowInfo = HandlerUtil.getActiveWorkbenchWindowChecked(event);
 		IWorkbenchPage page = windowInfo.getActivePage();
 		
-		HashMap<String, String> cfNameMap = Actions.askCfLocationPath(windowInfo);
-		if (cfNameMap.get("cfFullName") == null) {
+		HashMap<String, String> cfNameInfo = Actions.askCfLocationPath(windowInfo.getShell(), SWT.SAVE);
+		if (cfNameInfo.get("cfFullName") == null) {
 			Activator.log(Activator.createErrorStatus(Messages.CfBuild_Set_CF_Error));
 			return null;
 		}
@@ -131,25 +131,27 @@ public class CfBuilderHandler extends AbstractHandler {
 						
 						
 						if (!status.isOK()) {
-							Activator.log(Activator.createErrorStatus(Messages.CfBuild_Unknown_Error));
-							Messages.showPostBuildMessage(windowInfo, Messages.CfBuild_Unknown_Error, status.getMessage());
+							Activator.log(Activator.createErrorStatus(Messages.CfBuild_Error));
+							Messages.showPostBuildMessage(windowInfo, Messages.CfBuild_Error, status.getMessage());
 							return;
 						}
 
 						//String platformPath = getRuntimeDesignerPath(project);
-						String platformPath = Actions.findRuntimeDesignerPath(project, runtimeVersionSupport, resolvableRuntimeInstallationManager);
+						String platformPath = Actions.findEnterpriseRuntimePathFromProject(project, runtimeVersionSupport, resolvableRuntimeInstallationManager);
 						if (platformPath == null) {
-							Activator.log(Activator.createErrorStatus(Messages.CfBuild_Error_Find_Platform.replace("%platformVersion%", version.toString())));
+							//Activator.log(Activator.createErrorStatus(Messages.CfBuild_Error_Find_Platform.replace("%platformVersion%", version.toString())));
+							Activator.log(Activator.createErrorStatus(MessageFormat.format(Messages.CfBuild_Error_Find_Platform, version.toString())));
 							return;
 						}
 
 						//String edtVersion = identifyEdtVersion();
 
-						ProjectContext projectContext = new ProjectContext(projectName, projectPath, platformPath, cfNameMap);
+//						ProjectContext projectContext = new ProjectContext(projectName, projectPath, platformPath, cfNameInfo);
+						ProjectContext projectContext = new ProjectContext(projectName, platformPath, cfNameInfo);
 
 						BuildJob buildJob = new BuildJob(projectContext, windowInfo, tempDirs);
 						buildJob.schedule();
-						
+
 						Thread.sleep(2000);
 						progressDialog.close();
 

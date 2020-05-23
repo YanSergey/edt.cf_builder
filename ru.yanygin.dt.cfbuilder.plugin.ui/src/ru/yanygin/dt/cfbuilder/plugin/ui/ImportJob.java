@@ -10,9 +10,14 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.MessageFormat;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -27,10 +32,12 @@ import org.eclipse.ui.IWorkbenchWindow;
 import com._1c.g5.v8.dt.export.ExportException;
 import com._1c.g5.v8.dt.export.IExportService;
 import com._1c.g5.v8.dt.export.IExportServiceRegistry;
+import com._1c.g5.v8.dt.import_.IImportOperation;
+import com._1c.g5.v8.dt.import_.IImportOperationFactory;
 import com._1c.g5.v8.dt.metadata.mdclass.Configuration;
 import com._1c.g5.v8.dt.platform.version.Version;
 
-public class BuildJob extends Job {
+public class ImportJob extends Job {
 
 	private ProcessResult processResult = new ProcessResult(Status.OK_STATUS);
 //	private IStatus status = Status.OK_STATUS;
@@ -40,14 +47,16 @@ public class BuildJob extends Job {
 	private ProjectContext projectContext;
 	private IProgressMonitor buildMonitor;
 	private IWorkbenchWindow windowInfo;
+	private IImportOperationFactory importOperationFactory;
 
-	public BuildJob(ProjectContext projectContext, IWorkbenchWindow windowInfo, TempDirs tempDirs) {
+	public ImportJob(ProjectContext projectContext, IWorkbenchWindow windowInfo, TempDirs tempDirs, IImportOperationFactory importOperationFactory) {
 		//super(Messages.CfBuild_Build_Project_Name.replace("%projectName%", projectContext.getProjectName()));
 		super(MessageFormat.format(Messages.CfBuild_Build_Project_Name, projectContext.getProjectName()));
 		
 		this.projectContext = projectContext;
 		this.windowInfo = windowInfo;
 		this.tempDirs = tempDirs;
+		this.importOperationFactory = importOperationFactory;
 	}
 
 	@Override
@@ -59,8 +68,11 @@ public class BuildJob extends Job {
 		this.buildMonitor = progressMonitor;
 
 		Actions.createTempBase(projectContext, tempDirs, progressMonitor, processResult);
-		Actions.loadConfigFromXml(projectContext, tempDirs, progressMonitor, processResult);
-		Actions.dumpConfigToCf(projectContext, tempDirs, progressMonitor, processResult);
+		Actions.loadConfigFromCf(projectContext, tempDirs, progressMonitor, processResult);
+		Actions.dumpConfigToXml(projectContext, tempDirs, progressMonitor, processResult);
+		importXmlToProject();
+//		loadConfig();
+//		dumpConfig();
 
 		if (processResult.statusIsOK()) {
 			buildResult = Messages.CfBuild_Done;
@@ -113,8 +125,8 @@ public class BuildJob extends Job {
 	}
 
 //	private boolean checkBuildState(String taskName) {
-//		if (processResult.getStatus().isOK() & buildMonitor.isCanceled()) {
-//			processResult = new ProcessResult(Status.CANCEL_STATUS);
+//		if (processResult.statusIsOK() & buildMonitor.isCanceled()) {
+//			processResult.setResult(Status.CANCEL_STATUS);
 //			//String infoMessage = Messages.CfBuild_Cancel.replace("%projectName%", projectContext.getProjectName());
 //			String infoMessage = MessageFormat.format(Messages.CfBuild_Cancel, projectContext.getProjectName());
 //			buildMonitor.setTaskName(infoMessage);
@@ -122,7 +134,7 @@ public class BuildJob extends Job {
 //			return false;
 //		}
 //
-//		if (processResult.getStatus().isOK()) {
+//		if (processResult.statusIsOK()) {
 //			buildMonitor.beginTask(taskName, IProgressMonitor.UNKNOWN);
 //			Activator.log(Activator.createInfoStatus(taskName));
 //			return true;
@@ -133,13 +145,15 @@ public class BuildJob extends Job {
 //
 //	private void createTempBase() {
 //
-//		if (!checkBuildState(Messages.CfBuild_Create_Base))
+//		if (!Actions.checkBuildState(projectContext, Messages.CfBuild_Create_Base, buildMonitor, processResult))
 //			return;
 //
 //		Map<String, String> environmentVariables = new HashMap<>();
 //		environmentVariables.put("PLATFORM_1C_PATH",	projectContext.getPlatformPath());
 //		environmentVariables.put("BASE_1C_PATH",		tempDirs.getOnesBasePath());
 //		environmentVariables.put("LOGFILE",				tempDirs.getLogFilePath());
+//		
+//		environmentVariables.put("cfName",				projectContext.getCfFullName());
 //
 //		String command = "%PLATFORM_1C_PATH% CREATEINFOBASE File=%BASE_1C_PATH% /Out %LOGFILE%";
 //
@@ -147,7 +161,7 @@ public class BuildJob extends Job {
 //		processResult = Actions.runCommand(command, environmentVariables);
 //	}
 //
-//	private void loadConfig() {
+//	private void loadConfigFromCf() {
 //
 //		if (!checkBuildState(Messages.CfBuild_Load_Config))
 //			return;
@@ -155,18 +169,17 @@ public class BuildJob extends Job {
 //		Map<String, String> environmentVariables = new HashMap<>();
 //		environmentVariables.put("PLATFORM_1C_PATH",	projectContext.getPlatformPath());
 //		environmentVariables.put("BASE_1C_PATH",		tempDirs.getOnesBasePath());
-//		environmentVariables.put("outXmlDir",			tempDirs.getXmlPath());
+//		environmentVariables.put("cfName",				projectContext.getCfFullName());
 //		environmentVariables.put("LOGFILE",				tempDirs.getLogFilePath());
 //
-//		//String command = "%PLATFORM_1C_PATH% DESIGNER /F %BASE_1C_PATH% /LoadConfigFromFiles %outXmlDir% /UpdateDBCfg /Out %LOGFILE%";
-//		String command = "%PLATFORM_1C_PATH% DESIGNER /F %BASE_1C_PATH% /LoadConfigFromFiles %outXmlDir% /Out %LOGFILE%";
+//		String command = "%PLATFORM_1C_PATH% DESIGNER /F %BASE_1C_PATH% /LoadCfg \"%cfName%\" /Out %LOGFILE%";
 //
 //		//runCommand(command, environmentVariables, proces);
 //		processResult = Actions.runCommand(command, environmentVariables);
 //
 //	}
 //
-//	private void dumpConfig() {
+//	private void dumpConfigInXml() {
 //
 //		if (!checkBuildState(Messages.CfBuild_Dump_Config))
 //			return;
@@ -179,16 +192,168 @@ public class BuildJob extends Job {
 //		Map<String, String> environmentVariables = new HashMap<>();
 //		environmentVariables.put("PLATFORM_1C_PATH",	projectContext.getPlatformPath());
 //		environmentVariables.put("BASE_1C_PATH",		tempDirs.getOnesBasePath());
-//		environmentVariables.put("cfName",				projectContext.getCfFullName());
+//		environmentVariables.put("outXmlDir",			tempDirs.getXmlPath());
 //		environmentVariables.put("LOGFILE",				tempDirs.getLogFilePath());
 //
-//		String command = "%PLATFORM_1C_PATH% DESIGNER /F %BASE_1C_PATH% /DumpCfg \"%cfName%\" /Out %LOGFILE%";
+//		String command = "%PLATFORM_1C_PATH% DESIGNER /F %BASE_1C_PATH% /DumpConfigToFiles %outXmlDir% /Out %LOGFILE%";
 //
 //		//runCommand(command, environmentVariables, proces);
 //		processResult = Actions.runCommand(command, environmentVariables);
 //
 //	}
 
+	private void importXmlToProject() {
+
+		//if (!checkBuildState(Messages.CfBuild_Import_Project))
+		if (!Actions.checkBuildState(projectContext, Messages.CfBuild_Create_Base, buildMonitor, processResult))
+			return;
+
+//		ProgressMonitorDialog progressDialog = new ProgressMonitorDialog(windowInfo.getShell());
+		
+		Version version = Version.V8_3_14;
+		Path importPath = Paths.get(tempDirs.getXmlPath());
+		
+		
+		
+		IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(projectContext.getProjectName());
+
+		boolean exist = project.exists();
+		SubMonitor subMonitor = SubMonitor.convert(buildMonitor, 100);
+		if (exist) {
+
+			try {
+				project.delete(true, true, subMonitor.newChild(4));
+			} catch (CoreException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+
+		
+		
+		
+		IImportOperation importOperation = importOperationFactory.createImportConfigurationOperation(projectContext.getProjectName(), version, importPath);
+		try {
+			importOperation.run(buildMonitor);
+		} catch (InvocationTargetException | InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		
+		
+		
+//		Display.getDefault().asyncExec(() -> {
+//			try {
+//
+//				progressDialog.run(true, true, new IRunnableWithProgress() {
+//					@Override
+//					public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
+//						
+//						//Path importPath = Paths.get("C:\\0 Test\\tempXML");
+////						Path importPath = Paths.get("C:\\0 Test\\demo-xml");
+////						String projectName = "newProjImp";
+//
+//						/*
+//						// раскомменировать, если будет крашиться при пересоздании проекта
+//						IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(projectName);
+//
+//						boolean exist = project.exists();
+//						SubMonitor subMonitor = SubMonitor.convert(monitor, 100);
+//						if (exist) {
+//
+//							try {
+//								project.delete(true, true, subMonitor.newChild(4));
+//							} catch (CoreException e) {
+//								// TODO Auto-generated catch block
+//								e.printStackTrace();
+//							}
+//						}
+//						*/
+//						
+//						Version version = Version.V8_3_14;
+//						Path importPath = Paths.get(tempDirs.getXmlPath());
+//						
+//						IImportOperation importOperation = importOperationFactory.createImportConfigurationOperation(projectContext.getProjectName(), version, importPath);
+//						importOperation.run(monitor);
+//						
+//
+//						/*
+//						IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(projectName);
+//						IProject newProjImp = null;
+//
+//						try {
+//							boolean exist = project.exists();
+//							SubMonitor subMonitor = SubMonitor.convert(monitor, 100);
+//							if (exist) {
+//
+//								project.delete(true, true, subMonitor.newChild(4));
+//							}
+//							subMonitor.setWorkRemaining(4);
+//							if (subMonitor.isCanceled()) {
+//
+//								throw new InterruptedException();
+//							}
+//							configurationProjectManager.create(projectName, version, (Configuration) null,
+//									subMonitor.newChild(1));
+//							if (monitor.isCanceled()) {
+//
+//								throw new InterruptedException();
+//
+//							}
+//						} catch (CoreException e1) {
+//							// TODO Auto-generated catch block
+//							e1.printStackTrace();
+//						}
+//						// bootstrap.registerImport(project);
+//
+//						IImportService importService = null;
+//						try {
+//							importService = importServiceRegistry.getImportService(version);
+//						} catch (ImportException | CoreException e) {
+//							// TODO Auto-generated catch block
+//							e.printStackTrace();
+//						}
+//						IStatus status = importService.work(project, importPath, monitor);
+//						*/
+//						
+//						
+//						/*
+//						try {
+//							newProjImp = configurationProjectManager.create(projectName, version, (Configuration) null, monitor);
+//						} catch (CoreException e1) {
+//							// TODO Auto-generated catch block
+//							e1.printStackTrace();
+//						}
+//						IImportService importService = null;
+//						
+//						try {
+//							importService = importServiceRegistry.getImportService(version);
+//						} catch (ImportException | CoreException e) {
+//							// TODO Auto-generated catch block
+//							e.printStackTrace();
+//						}
+//
+//						IStatus status = importService.work(newProjImp, importPath, monitor);
+//						 */
+//
+//
+//						
+//						Thread.sleep(2000);
+//						progressDialog.close();
+//
+//					}
+//
+//				});
+//			} catch (InvocationTargetException | InterruptedException e) {
+//				Activator.log(Activator.createErrorStatus(e.getLocalizedMessage(), e));
+//				e.printStackTrace();
+//			}
+//		});
+//		
+		
+	}
+	
 	/*
 	private void runCommand(String command, Map<String, String> environmentVariables) {
 
