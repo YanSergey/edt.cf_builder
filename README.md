@@ -1,6 +1,8 @@
 # EDT Cf-builder
 
 [![Download](https://img.shields.io/github/release/YanSergey/edt.cf_builder?label=download&style=flat)](https://github.com/YanSergey/edt.cf_builder/releases/latest)
+[![GitHub Releases](https://img.shields.io/github/downloads/YanSergey/edt.cf_builder/latest/total?style=flat-square)](https://github.com/YanSergey/edt.cf_builder/releases)
+[![GitHub All Releases](https://img.shields.io/github/downloads/YanSergey/edt.cf_builder/total?style=flat-square)](https://github.com/YanSergey/edt.cf_builder/releases)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=YanSergey_EDT_CF_Builder&metric=alert_status)](https://sonarcloud.io/dashboard?id=YanSergey_EDT_CF_Builder)
 [![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=YanSergey_EDT_CF_Builder&metric=reliability_rating)](https://sonarcloud.io/dashboard?id=YanSergey_EDT_CF_Builder)
 [![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=YanSergey_EDT_CF_Builder&metric=security_rating)](https://sonarcloud.io/dashboard?id=YanSergey_EDT_CF_Builder)

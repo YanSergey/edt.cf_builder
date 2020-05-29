@@ -1,23 +1,17 @@
 package ru.yanygin.dt.cfbuilder.plugin.ui;
 
 import java.io.File;
+import java.text.MessageFormat;
 
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.SubMonitor;
-
 import com.google.common.io.Files;
 
 public class TempDirs {
 
 	private String tempDirPath;
-	private String workspacePath;
 	private String xmlPath;
 	private String onesBasePath;
 	private String logFilePath;
-
-	public String getWorkspacePath() {
-		return workspacePath;
-	}
 
 	public String getXmlPath() {
 		return xmlPath;
@@ -39,22 +33,21 @@ public class TempDirs {
 
 		this.tempDirPath = Files.createTempDir().getAbsolutePath();
 
-		this.workspacePath	= tempDirPath + "\\ws";
 		this.xmlPath		= tempDirPath + "\\xml";
 		this.onesBasePath	= tempDirPath + "\\base";
 		this.logFilePath	= tempDirPath + "\\out.log";
 
-		if (new File(workspacePath).mkdir() | new File(xmlPath).mkdir() | new File(onesBasePath).mkdir())
+		if (new File(xmlPath).mkdir() | new File(onesBasePath).mkdir())
 			return true;
 		else {
-			Activator.log(Activator.createErrorStatus(Messages.CfBuild_Error_Create_Temp));
+			Activator.log(Activator.createErrorStatus(Messages.Status_ErrorCreateTempDirs));
 			return false;
 		}
 
 	}
 
 	public void deleteDirs(IProgressMonitor buildMonitor) {
-		buildMonitor.beginTask(Messages.CfBuild_Clean_Temp, IProgressMonitor.UNKNOWN);
+		buildMonitor.beginTask(Messages.Actions_ClearingTemp, IProgressMonitor.UNKNOWN);
 		recursiveDelete(new File(tempDirPath));
 		buildMonitor.done();
 	}
@@ -71,7 +64,8 @@ public class TempDirs {
 		}
 
 		if (!file.delete())
-			Activator.log(Activator.createInfoStatus(Messages.CfBuild_Error_Delete_Temp.replace("%fileName%", file.getAbsolutePath())));
+//			Activator.log(Activator.createInfoStatus(Messages.CfBuild_Error_Delete_Temp.replace("%fileName%", file.getAbsolutePath())));
+			Activator.log(Activator.createInfoStatus(MessageFormat.format(Messages.Status_ErrorDeleteTemp, file.getAbsolutePath())));
 	}
 
 }

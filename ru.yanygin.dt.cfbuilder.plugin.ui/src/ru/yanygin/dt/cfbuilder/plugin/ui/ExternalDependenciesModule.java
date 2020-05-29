@@ -10,7 +10,6 @@ import com._1c.g5.v8.dt.import_.IImportOperationFactory;
 import com._1c.g5.v8.dt.import_.IImportServiceRegistry;
 import com._1c.g5.v8.dt.core.platform.IConfigurationProjectManager;
 import com._1c.g5.v8.dt.core.platform.IConfigurationProvider;
-import com._1c.g5.v8.dt.metadata.mdclass.Configuration;
 
 public class ExternalDependenciesModule extends AbstractServiceAwareModule {
 

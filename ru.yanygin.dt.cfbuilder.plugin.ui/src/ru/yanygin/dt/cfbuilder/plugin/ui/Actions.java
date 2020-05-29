@@ -4,23 +4,32 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.lang.reflect.InvocationTargetException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.MessageFormat;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.swt.SWT;
+import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.ui.IWorkbenchWindow;
 
+import com._1c.g5.v8.dt.export.ExportException;
+import com._1c.g5.v8.dt.export.IExportService;
+import com._1c.g5.v8.dt.export.IExportServiceRegistry;
+import com._1c.g5.v8.dt.export.IExportStrategy;
+import com._1c.g5.v8.dt.import_.IImportOperation;
+import com._1c.g5.v8.dt.import_.IImportOperationFactory;
+import com._1c.g5.v8.dt.metadata.mdclass.Configuration;
 import com._1c.g5.v8.dt.platform.services.core.runtimes.environments.IResolvableRuntimeInstallation;
 import com._1c.g5.v8.dt.platform.services.core.runtimes.environments.IResolvableRuntimeInstallationManager;
 import com._1c.g5.v8.dt.platform.services.core.runtimes.environments.MatchingRuntimeNotFound;
@@ -28,31 +37,19 @@ import com._1c.g5.v8.dt.platform.services.model.RuntimeInstallation;
 import com._1c.g5.v8.dt.platform.version.IRuntimeVersionSupport;
 import com._1c.g5.v8.dt.platform.version.Version;
 
+import ru.yanygin.dt.cfbuilder.plugin.ui.PlatformV8Commands.V8CommandTypes;
+
 public class Actions {
 
 	public static String findEnterpriseRuntimePathFromProject(IProject project, IRuntimeVersionSupport runtimeVersionSupport,
 			IResolvableRuntimeInstallationManager resolvableRuntimeInstallationManager) {
 		
 		Version version = runtimeVersionSupport.getRuntimeVersion(project);
-
 		return findEnterpriseRuntimePathFromVersion(version, runtimeVersionSupport, resolvableRuntimeInstallationManager);
-//		IResolvableRuntimeInstallation resolvableRuntimeInstallation = resolvableRuntimeInstallationManager.getDefault(
-//				"com._1c.g5.v8.dt.platform.services.core.runtimeType.EnterprisePlatform", version.toString());
-//
-//		RuntimeInstallation currentRuntime;
-//		try {
-//			currentRuntime = resolvableRuntimeInstallation.get();
-//		} catch (MatchingRuntimeNotFound e) {
-//			e.printStackTrace();
-//			return null;
-//		}
-//		return "\"".concat(currentRuntime.getInstallLocation().toString()).concat("\\1cv8.exe\"");
 	}
 
 	public static String findEnterpriseRuntimePathFromVersion(Version version, IRuntimeVersionSupport runtimeVersionSupport,
 			IResolvableRuntimeInstallationManager resolvableRuntimeInstallationManager) {
-		
-//		Version version = runtimeVersionSupport.getRuntimeVersion(project);
 
 		IResolvableRuntimeInstallation resolvableRuntimeInstallation = resolvableRuntimeInstallationManager.getDefault(
 				"com._1c.g5.v8.dt.platform.services.core.runtimeType.EnterprisePlatform", version.toString());
@@ -70,17 +67,21 @@ public class Actions {
 	public static HashMap<String, String> askCfLocationPath(Shell parentShell, int style) {
 		
 		FileDialog saveDialog = new FileDialog(parentShell, style);
-		saveDialog.setText(Messages.CfBuild_Set_CF_Location);
+		saveDialog.setText(Messages.Actions_Set_CF_Location);
 
 		String[] filterExt = { "*.cf" };
-		String[] filterNames = { Messages.CfBuild_1C_Files };
+		String[] filterNames = { Messages.Filter_1C_Files };
 		saveDialog.setFilterExtensions(filterExt);
 		saveDialog.setFilterNames(filterNames);
 
-		HashMap<String, String> cfNameInfo = new HashMap<>();
+		HashMap<String, String> cfNameInfo = null;
 
-		cfNameInfo.put("cfFullName", saveDialog.open());
-		cfNameInfo.put("cfLocation", saveDialog.getFilterPath());
+		String cfFullName = saveDialog.open();
+		if (cfFullName != null) {
+			cfNameInfo = new HashMap<>();
+			cfNameInfo.put("cfFullName", cfFullName);
+			cfNameInfo.put("cfLocation", saveDialog.getFilterPath());
+		}
 
 		return cfNameInfo;
 	}
@@ -88,10 +89,9 @@ public class Actions {
 	public static boolean checkBuildState(ProjectContext projectContext, String taskName, IProgressMonitor buildMonitor, ProcessResult processResult) {
 		if (processResult.statusIsOK() & buildMonitor.isCanceled()) {
 			processResult.setResult(Status.CANCEL_STATUS);
-			//String infoMessage = Messages.CfBuild_Cancel.replace("%projectName%", projectContext.getProjectName());
-			String infoMessage = MessageFormat.format(Messages.CfBuild_Cancel, projectContext.getProjectName());
+
+			String infoMessage = MessageFormat.format(Messages.Status_CfBuildCancel, projectContext.getProjectName());
 			buildMonitor.setTaskName(infoMessage);
-			//Activator.log(Activator.createInfoStatus(infoMessage));
 			return false;
 		}
 
@@ -104,63 +104,58 @@ public class Actions {
 		return false;
 	}
 
-	public static void createTempBase(ProjectContext projectContext, TempDirs tempDirs, IProgressMonitor buildMonitor, ProcessResult processResult) {
+	public static void createTempBase(ProjectContext projectContext, IProgressMonitor buildMonitor, ProcessResult processResult) {
 
-		if (!checkBuildState(projectContext, Messages.CfBuild_Create_Base, buildMonitor, processResult))
+		if (!checkBuildState(projectContext, Messages.Actions_Create_TempBase, buildMonitor, processResult))
 			return;
 
 		Map<String, String> environmentVariables = new HashMap<>();
 		environmentVariables.put("PLATFORM_1C_PATH",	projectContext.getPlatformPath());
-		environmentVariables.put("BASE_1C_PATH",		tempDirs.getOnesBasePath());
-		environmentVariables.put("LOGFILE",				tempDirs.getLogFilePath());
+		environmentVariables.put("BASE_1C_PATH",		projectContext.getTempDirs().getOnesBasePath());
+		environmentVariables.put("LOGFILE",				projectContext.getTempDirs().getLogFilePath());
 
 		String command = "%PLATFORM_1C_PATH% CREATEINFOBASE File=%BASE_1C_PATH% /Out %LOGFILE%";
 
-		//runCommand(command, environmentVariables, proces);
 		runCommand(command, environmentVariables, processResult);
 	}
 	
-	public static void loadConfigFromXml(ProjectContext projectContext, TempDirs tempDirs, IProgressMonitor buildMonitor, ProcessResult processResult) {
+	public static void loadConfigFromXml(ProjectContext projectContext, IProgressMonitor buildMonitor, ProcessResult processResult) {
 
-		if (!checkBuildState(projectContext, Messages.CfBuild_Load_Config, buildMonitor, processResult))
-//		if (!checkBuildState(Messages.CfBuild_Load_Config))
+		if (!checkBuildState(projectContext, Messages.Actions_Load_ConfigFromXml, buildMonitor, processResult))
 			return;
 
 		Map<String, String> environmentVariables = new HashMap<>();
 		environmentVariables.put("PLATFORM_1C_PATH",	projectContext.getPlatformPath());
-		environmentVariables.put("BASE_1C_PATH",		tempDirs.getOnesBasePath());
-		environmentVariables.put("outXmlDir",			tempDirs.getXmlPath());
-		environmentVariables.put("LOGFILE",				tempDirs.getLogFilePath());
+		environmentVariables.put("BASE_1C_PATH",		projectContext.getTempDirs().getOnesBasePath());
+		environmentVariables.put("outXmlDir",			projectContext.getTempDirs().getXmlPath());
+		environmentVariables.put("LOGFILE",				projectContext.getTempDirs().getLogFilePath());
 
-		//String command = "%PLATFORM_1C_PATH% DESIGNER /F %BASE_1C_PATH% /LoadConfigFromFiles %outXmlDir% /UpdateDBCfg /Out %LOGFILE%";
 		String command = "%PLATFORM_1C_PATH% DESIGNER /F %BASE_1C_PATH% /LoadConfigFromFiles %outXmlDir% /Out %LOGFILE%";
 
-		//runCommand(command, environmentVariables, proces);
 		runCommand(command, environmentVariables, processResult);
 
 	}
 	
-	public static void loadConfigFromCf(ProjectContext projectContext, TempDirs tempDirs, IProgressMonitor buildMonitor, ProcessResult processResult) {
+	public static void loadConfigFromCf(ProjectContext projectContext, IProgressMonitor buildMonitor, ProcessResult processResult) {
 
-		if (!checkBuildState(projectContext, Messages.CfBuild_Load_Config, buildMonitor, processResult))
+		if (!checkBuildState(projectContext, Messages.Actions_Load_ConfigFromCf, buildMonitor, processResult))
 			return;
 
 		Map<String, String> environmentVariables = new HashMap<>();
 		environmentVariables.put("PLATFORM_1C_PATH",	projectContext.getPlatformPath());
-		environmentVariables.put("BASE_1C_PATH",		tempDirs.getOnesBasePath());
+		environmentVariables.put("BASE_1C_PATH",		projectContext.getTempDirs().getOnesBasePath());
 		environmentVariables.put("cfName",				projectContext.getCfFullName());
-		environmentVariables.put("LOGFILE",				tempDirs.getLogFilePath());
+		environmentVariables.put("LOGFILE",				projectContext.getTempDirs().getLogFilePath());
 
 		String command = "%PLATFORM_1C_PATH% DESIGNER /F %BASE_1C_PATH% /LoadCfg \"%cfName%\" /Out %LOGFILE%";
 
-		//runCommand(command, environmentVariables, proces);
 		runCommand(command, environmentVariables, processResult);
 
 	}
 
-	public static void dumpConfigToXml(ProjectContext projectContext, TempDirs tempDirs, IProgressMonitor buildMonitor, ProcessResult processResult) {
+	public static void dumpConfigToXml(ProjectContext projectContext, IProgressMonitor buildMonitor, ProcessResult processResult) {
 
-		if (!checkBuildState(projectContext, Messages.CfBuild_Dump_Config, buildMonitor, processResult))
+		if (!checkBuildState(projectContext, Messages.Actions_Dump_ConfigToXml, buildMonitor, processResult))
 			return;
 
 		File buildDir = new File(projectContext.getCfLocation());
@@ -170,21 +165,19 @@ public class Actions {
 
 		Map<String, String> environmentVariables = new HashMap<>();
 		environmentVariables.put("PLATFORM_1C_PATH",	projectContext.getPlatformPath());
-		environmentVariables.put("BASE_1C_PATH",		tempDirs.getOnesBasePath());
-		environmentVariables.put("outXmlDir",			tempDirs.getXmlPath());
-		environmentVariables.put("LOGFILE",				tempDirs.getLogFilePath());
+		environmentVariables.put("BASE_1C_PATH",		projectContext.getTempDirs().getOnesBasePath());
+		environmentVariables.put("outXmlDir",			projectContext.getTempDirs().getXmlPath());
+		environmentVariables.put("LOGFILE",				projectContext.getTempDirs().getLogFilePath());
 
 		String command = "%PLATFORM_1C_PATH% DESIGNER /F %BASE_1C_PATH% /DumpConfigToFiles %outXmlDir% /Out %LOGFILE%";
 
-		//runCommand(command, environmentVariables, proces);
 		runCommand(command, environmentVariables, processResult);
 
 	}
 
-	public static void dumpConfigToCf(ProjectContext projectContext, TempDirs tempDirs, IProgressMonitor buildMonitor, ProcessResult processResult) {
+	public static void dumpConfigToCf(ProjectContext projectContext, IProgressMonitor buildMonitor, ProcessResult processResult) {
 
-		if (!checkBuildState(projectContext, Messages.CfBuild_Dump_Config, buildMonitor, processResult))
-//		if (!checkBuildState(Messages.CfBuild_Dump_Config))
+		if (!checkBuildState(projectContext, Messages.Actions_Dump_ConfigToCf, buildMonitor, processResult))
 			return;
 
 		File buildDir = new File(projectContext.getCfLocation());
@@ -194,22 +187,127 @@ public class Actions {
 
 		Map<String, String> environmentVariables = new HashMap<>();
 		environmentVariables.put("PLATFORM_1C_PATH",	projectContext.getPlatformPath());
-		environmentVariables.put("BASE_1C_PATH",		tempDirs.getOnesBasePath());
+		environmentVariables.put("BASE_1C_PATH",		projectContext.getTempDirs().getOnesBasePath());
 		environmentVariables.put("cfName",				projectContext.getCfFullName());
-		environmentVariables.put("LOGFILE",				tempDirs.getLogFilePath());
+		environmentVariables.put("LOGFILE",				projectContext.getTempDirs().getLogFilePath());
 
 		String command = "%PLATFORM_1C_PATH% DESIGNER /F %BASE_1C_PATH% /DumpCfg \"%cfName%\" /Out %LOGFILE%";
 
-		//runCommand(command, environmentVariables, proces);
 		runCommand(command, environmentVariables, processResult);
 
 	}
-
-	public static void runCommand(String command, Map<String, String> environmentVariables, ProcessResult processResult) {
+	
+	public static void runPlatformV8Command(V8CommandTypes commandType, ProjectContext projectContext, ProcessResult processResult, IProgressMonitor buildMonitor) {
 		
+		HashMap<String, String> v8command = PlatformV8Commands.getPlatformV8Command(commandType);
+
+		if (!checkBuildState(projectContext, v8command.get("actionMessage"), buildMonitor, processResult))
+			return;
+
 		IStatus status = Status.OK_STATUS;
 		String processOutput = "";
+
+		Process process;
+		ProcessBuilder processBuilder = new ProcessBuilder();
+
+		Map<String, String> env = processBuilder.environment();
+//		environmentVariables.forEach((k, v) -> env.put(k, v));
 		
+		env.put("PLATFORM_1C_PATH",	projectContext.getPlatformPath());
+		env.put("BASE_1C_PATH",		projectContext.getTempDirs().getOnesBasePath());
+		env.put("LOGFILE",			projectContext.getTempDirs().getLogFilePath());
+		env.put("outXmlDir",		projectContext.getTempDirs().getXmlPath());
+		env.put("cfName",			projectContext.getCfFullName());
+
+		processBuilder.command("cmd.exe", "/c", v8command.get("command"));
+		try {
+			process = processBuilder.start();
+
+			BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream(), "windows-1251"));
+
+			String line;
+			while ((line = reader.readLine()) != null) {
+				processOutput = processOutput.concat(System.lineSeparator()).concat(line);
+			}
+
+			int exitCode = process.waitFor();
+			if (exitCode != 0) {
+				status = new Status(Status.ERROR, Activator.PLUGIN_ID, Messages.Status_OperationAbort);
+				Activator.log(Activator.createErrorStatus(Messages.Status_OperationAbort));
+			}
+
+		} catch (IOException | InterruptedException e) {
+			status = new Status(Status.ERROR, Activator.PLUGIN_ID, Messages.Status_UnknownError);
+			Activator.log(Activator.createErrorStatus(Messages.Status_UnknownError.concat(processOutput), e));
+		}
+
+		processResult.setResult(status, processOutput);
+
+	}
+
+	public static IStatus exportProjectToXml(IExportServiceRegistry exportServiceRegistry, Version version,
+			Configuration configuration, Path exportPath, SubMonitor progressBar) {
+		IStatus status;
+
+//		SubMonitor progressBar = SubMonitor.convert(monitor);
+		progressBar.subTask(Messages.Info_DataIsPreparing);
+
+		IExportService exportService = null;
+		try {
+			exportService = exportServiceRegistry.getExportService(version);
+		} catch (ExportException ex) {
+			status = new Status(Status.ERROR, Activator.PLUGIN_ID, Messages.Status_UnknownError);
+			Activator.log(Activator.createErrorStatus(ex.getLocalizedMessage(), ex));
+			ex.printStackTrace();
+		}
+		boolean exportSubordinatesObjects = IExportStrategy.DEFAULT.exportExternalProperties(configuration);
+		boolean exportExternalProperties = IExportStrategy.DEFAULT.exportExternalProperties(configuration);
+		status = exportService.work(configuration, exportPath, exportSubordinatesObjects, exportExternalProperties,
+				progressBar);
+		return status;
+	}
+
+	public static void importXmlToProject(IImportOperationFactory importOperationFactory, ProjectContext projectContext,
+			IProgressMonitor buildMonitor, ProcessResult processResult) {
+
+		if (!Actions.checkBuildState(projectContext, Messages.Task_ImportProjectFromCf, buildMonitor, processResult))
+			return;
+
+		IStatus status = Status.OK_STATUS;
+		String processOutput = "";
+
+		Path importPath = Paths.get(projectContext.getTempDirs().getXmlPath());
+
+		IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(projectContext.getProjectName());
+		if (project.exists()) {
+
+			try {
+				SubMonitor subMonitor = SubMonitor.convert(buildMonitor, 100);
+				project.delete(true, true, subMonitor.newChild(4));
+			} catch (CoreException e) {
+				status = new Status(Status.ERROR, Activator.PLUGIN_ID, Messages.Status_UnknownError);
+				e.printStackTrace();
+			}
+		}
+
+		IImportOperation importOperation = importOperationFactory.createImportConfigurationOperation(
+				projectContext.getProjectName(), projectContext.getVersion(), importPath);
+		try {
+			importOperation.run(buildMonitor);
+		} catch (InvocationTargetException | InterruptedException e) {
+			status = new Status(Status.ERROR, Activator.PLUGIN_ID, Messages.Status_UnknownError);
+			e.printStackTrace();
+		}
+		
+		processResult.setResult(status, processOutput);
+
+	}
+	
+	public static void runCommand(String command, Map<String, String> environmentVariables, ProcessResult processResult) {
+
+		IStatus status = Status.OK_STATUS;
+		String processOutput = "";
+
 		Process process;
 		ProcessBuilder processBuilder = new ProcessBuilder();
 
@@ -220,7 +318,7 @@ public class Actions {
 		try {
 			process = processBuilder.start();
 
-			BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream(), "windows-1251"));// cp866, UTF-8
+			BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream(), "windows-1251"));
 
 			String line;
 			while ((line = reader.readLine()) != null) {
@@ -229,59 +327,19 @@ public class Actions {
 
 			int exitCode = process.waitFor();
 			if (exitCode != 0) {
-				status = new Status(Status.ERROR, Activator.PLUGIN_ID, Messages.CfBuild_Abort);
-				Activator.log(Activator.createErrorStatus(Messages.CfBuild_Abort));
+				status = new Status(Status.ERROR, Activator.PLUGIN_ID, Messages.Status_OperationAbort);
+				Activator.log(Activator.createErrorStatus(Messages.Status_OperationAbort));
 			}
 
 		} catch (IOException | InterruptedException e) {
-			status = new Status(Status.ERROR, Activator.PLUGIN_ID, Messages.CfBuild_Unknown_Error);
-			Activator.log(Activator.createErrorStatus(Messages.CfBuild_Unknown_Error.concat(processOutput), e));
+			status = new Status(Status.ERROR, Activator.PLUGIN_ID, Messages.Status_UnknownError);
+			Activator.log(Activator.createErrorStatus(Messages.Status_UnknownError.concat(processOutput), e));
 		}
-		
-		//return new ProcessResult(status, processOutput);
+
 		processResult.setResult(status, processOutput);
 
 	}
-	
-	public static ProcessResult runCommand(List<String> commands, Map<String, String> environmentVariables) {
-		
-		IStatus status = Status.OK_STATUS;
-		String processOutput = "";
-		
-		Process process;
-		ProcessBuilder processBuilder = new ProcessBuilder();
 
-		Map<String, String> env = processBuilder.environment();
-		environmentVariables.forEach((k, v) -> env.put(k, v));
-
-//		processBuilder.command("cmd.exe", "/c", commands);
-		processBuilder.command(commands);
-		try {
-			process = processBuilder.start();
-
-			BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream(), "windows-1251"));// cp866, UTF-8
-
-			String line;
-			while ((line = reader.readLine()) != null) {
-				processOutput = processOutput.concat(System.lineSeparator()).concat(line);
-			}
-
-			int exitCode = process.waitFor();
-			if (exitCode != 0) {
-				status = new Status(Status.ERROR, Activator.PLUGIN_ID, Messages.CfBuild_Abort);
-				Activator.log(Activator.createErrorStatus(Messages.CfBuild_Abort));
-			}
-
-		} catch (IOException | InterruptedException e) {
-			status = new Status(Status.ERROR, Activator.PLUGIN_ID, Messages.CfBuild_Unknown_Error);
-			Activator.log(Activator.createErrorStatus(Messages.CfBuild_Unknown_Error.concat(processOutput), e));
-		}
-		
-		return new ProcessResult(status, processOutput);
-
-
-	}
-	
 	public static String readOutLogFile(String fileName) {
 		String contents = "";
 
@@ -289,7 +347,6 @@ public class Actions {
 			try {
 				contents = new String(Files.readAllBytes(Paths.get(fileName)), Charset.forName("Windows-1251"));
 			} catch (IOException e) {
-				//status = new Status(Status.ERROR, Activator.PLUGIN_ID, Messages.CfBuild_Unknown_Error);
 				Activator.log(Activator.createErrorStatus(e.getLocalizedMessage(), e));
 			}
 		}

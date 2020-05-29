@@ -3,7 +3,7 @@ package ru.yanygin.dt.cfbuilder.plugin.ui;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.ui.IWorkbenchWindow;
+import org.eclipse.swt.widgets.Shell;
 
 /**
  * Данный класс - представитель локализации механизма строк в Eclipse.
@@ -11,34 +11,53 @@ import org.eclipse.ui.IWorkbenchWindow;
 class Messages extends NLS {
 	private static final String BUNDLE_NAME = "ru.yanygin.dt.cfbuilder.plugin.ui.messages"; //$NON-NLS-1$
 
-	public static String CfBuild_Start_Build;
-	public static String CfBuild_End_Build;
+	public static String Task_BuildCfFromProject;
+	public static String Task_ImportProjectFromCf;
+	
+	public static String Actions_Set_CF_Location;
+	public static String Actions_Create_TempBase;
+	public static String Actions_Load_ConfigFromXml;
+	public static String Actions_Dump_ConfigToXml;
+	public static String Actions_Load_ConfigFromCf;
+	public static String Actions_Dump_ConfigToCf;
+	//public static String Actions_Import_ProjectFromCf;
+	public static String Actions_ClearingTemp;
+	
+	public static String Status_StartBuild;
+	public static String Status_EndBuild;
+	public static String Status_StartImport;
+	public static String Status_EndImport;
+	
+	public static String Status_OperationAbort;
+	public static String Status_CfBuildCancel;
+	public static String Status_ImportFromCfCancel;
+	public static String Status_UnknownError;
+	public static String Status_CancelFileCfSelestion;
+	public static String Status_ErrorGetProject;
+	public static String Status_ErrorCreateTempDirs;
 
-	public static String CfBuild_Error_Save_Texts;
-	public static String CfBuild_Error_Get_Project;
-	public static String CfBuild_Error_Find_Platform;
-	public static String CfBuild_Error_Create_Temp;
-	public static String CfBuild_Error_Delete_Temp;
-	public static String CfBuild_Unknown_Error;
-	public static String CfBuild_Error;
+	public static String Status_ErrorFindPlatform;
+	public static String Status_ErrorDeleteTemp;
+	
+	//public static String CfBuild_Error_Save_Texts;
+	public static String CfBuild_Error; //???
+	public static String CfBuild_Convertion_Done; // ???
 
-	public static String CfBuild_Build_Project_Name;
-	public static String CfBuild_Run_Convertion;
-	public static String CfBuild_Convertion_Done;
-	public static String CfBuild_Create_Base;
-	public static String CfBuild_Load_Config;
-	public static String CfBuild_Dump_Config;
-	public static String CfBuild_Clean_Temp;
+	public static String Info_DataIsPreparing;
+	public static String Info_CfBuildIsDone;
+	public static String Info_FileCfSaveIs;
+	public static String Info_ImportFromCfIsDone;
+	public static String Info_FileCfImportTo;
+	
+	public static String Filter_1C_Files;
 
-	public static String CfBuild_Abort;
-	public static String CfBuild_Cancel;
-	public static String CfBuild_Done;
-	public static String CfBuild_Set_CF_Location;
-	public static String CfBuild_Set_CF_Error;
-	public static String CfBuild_File_CF_Save_Is;
-	public static String CfBuild_1C_Files;
+	public static String Dialog_ImportProjectFromCf;
+	public static String Dialog_ProjectName;
+	public static String Dialog_ProjectExists;
+	public static String Dialog_V8Version;
+	public static String Dialog_CfPath;
+	public static String Dialog_View;
 
-	public static String CfBuild_Import_Project;
 
 	static {
 		NLS.initializeMessages(BUNDLE_NAME, Messages.class);
@@ -47,13 +66,13 @@ class Messages extends NLS {
 	private Messages() {
 	}
 	
-	public static void showPostBuildMessage(IWorkbenchWindow windowInfo, String buildMessage) {
-		showPostBuildMessage(windowInfo, buildMessage, buildMessage);
+	public static void showPostBuildMessage(Shell parentShell, String buildMessage) {
+		showPostBuildMessage(parentShell, buildMessage, buildMessage);
 	}
 	
-	public static void showPostBuildMessage(IWorkbenchWindow windowInfo, String buildTitle, String buildMessage) {
+	public static void showPostBuildMessage(Shell parentShell, String buildTitle, String buildMessage) {
 		Display.getDefault()
-				.asyncExec(() -> MessageDialog.openInformation(windowInfo.getShell(), buildTitle, buildMessage));
+				.asyncExec(() -> MessageDialog.openInformation(parentShell, buildTitle, buildMessage));
 	}
 
 }

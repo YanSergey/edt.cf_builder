@@ -2,28 +2,28 @@ package ru.yanygin.dt.cfbuilder.plugin.ui;
 
 import java.util.HashMap;
 
+import com._1c.g5.v8.dt.platform.version.Version;
+
 public class ProjectContext {
 
 	private String projectName;
-//	private String projectPath;
 
 	private String platformPath;
 
 	private String cfFullName;
 	private String cfLocation;
 
+	private TempDirs tempDirs;
+
+	private Version version;
+	
 	public String getProjectName() {
 		return projectName;
 	}
 
-//	public String getProjectPath() {
-//		return projectPath;
-//	}
-
 	public String getPlatformPath() {
 		return platformPath;
 	}
-
 
 	public String getCfFullName() {
 		return cfFullName;
@@ -33,14 +33,28 @@ public class ProjectContext {
 		return cfLocation;
 	}
 
-	public ProjectContext(String projectName, String platformPath, HashMap<String, String> cfNameMap) {
-//	public ProjectContext(String projectName, String projectPath, String platformPath, HashMap<String, String> cfNameMap) {
+	public TempDirs getTempDirs() {
+		return tempDirs;
+	}
+
+	public Version getVersion() {
+		return version;
+	}
+	
+	public ProjectContext(String projectName, String platformPath, HashMap<String, String> cfNameInfo, TempDirs tempDirs, Version version) {
+
+		this(projectName, platformPath, cfNameInfo, tempDirs);
+		this.version = version;
+
+	}
+
+	public ProjectContext(String projectName, String platformPath, HashMap<String, String> cfNameInfo, TempDirs tempDirs) {
 
 		this.projectName = projectName;
-//		this.projectPath = projectPath;
 		this.platformPath = platformPath;
-		this.cfFullName = cfNameMap.get("cfFullName");
-		this.cfLocation = cfNameMap.get("cfLocation");
+		this.cfFullName = cfNameInfo.get("cfFullName");
+		this.cfLocation = cfNameInfo.get("cfLocation");
+		this.tempDirs = tempDirs;
 
 	}
 
