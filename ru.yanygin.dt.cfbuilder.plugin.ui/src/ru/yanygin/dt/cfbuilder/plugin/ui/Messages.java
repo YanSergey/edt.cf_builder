@@ -20,7 +20,7 @@ class Messages extends NLS {
 	public static String Actions_Dump_ConfigToXml;
 	public static String Actions_Load_ConfigFromCf;
 	public static String Actions_Dump_ConfigToCf;
-	//public static String Actions_Import_ProjectFromCf;
+	public static String Actions_Import_ProjectFromXml;
 	public static String Actions_ClearingTemp;
 	
 	public static String Status_StartBuild;
@@ -38,10 +38,6 @@ class Messages extends NLS {
 
 	public static String Status_ErrorFindPlatform;
 	public static String Status_ErrorDeleteTemp;
-	
-	//public static String CfBuild_Error_Save_Texts;
-	public static String CfBuild_Error; //???
-	public static String CfBuild_Convertion_Done; // ???
 
 	public static String Info_DataIsPreparing;
 	public static String Info_CfBuildIsDone;

@@ -8,11 +8,12 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.swt.widgets.Shell;
 import com._1c.g5.v8.dt.import_.IImportOperationFactory;
 
+import ru.yanygin.dt.cfbuilder.plugin.ui.PlatformV8Commands.V8CommandTypes;
+
 public class ImportJob extends Job {
 
 	private ProcessResult processResult = new ProcessResult(Status.OK_STATUS);
 	private ProjectContext projectContext;
-	private IProgressMonitor buildMonitor;
 	private Shell parentShell;
 	private IImportOperationFactory importOperationFactory;
 
@@ -27,21 +28,19 @@ public class ImportJob extends Job {
 	@Override
 	protected IStatus run(IProgressMonitor progressMonitor) {
 
-		String buildResult;
-		String buildMessage;
-		
-		this.buildMonitor = progressMonitor;
-		
 		Activator.log(Activator.createInfoStatus(MessageFormat.format(Messages.Status_StartImport, projectContext.getProjectName())));
 
-		Actions.createTempBase(projectContext, progressMonitor, processResult);
-		Actions.loadConfigFromCf(projectContext, progressMonitor, processResult);
-		Actions.dumpConfigToXml(projectContext, progressMonitor, processResult);
-		Actions.importXmlToProject(importOperationFactory, projectContext, progressMonitor, processResult);
+		Actions.runPlatformV8Command(V8CommandTypes.CREATEINFOBASE, projectContext, processResult, progressMonitor);
+		Actions.runPlatformV8Command(V8CommandTypes.LOADCONFIGFROMCF, projectContext, processResult, progressMonitor);
+		Actions.runPlatformV8Command(V8CommandTypes.DUMPCONFIGTOFILES, projectContext, processResult, progressMonitor);
+		Actions.importXmlToProject(importOperationFactory, projectContext, processResult, progressMonitor);
+
+		String buildResult;
+		String buildMessage;
 
 		if (processResult.statusIsOK()) {
 			buildResult = Messages.Info_ImportFromCfIsDone;
-			buildMessage = MessageFormat.format(Messages.Info_FileCfImportTo, projectContext.getCfFullName());
+			buildMessage = MessageFormat.format(Messages.Info_FileCfImportTo, projectContext.getProjectName());
 
 			Activator.log(Activator.createInfoStatus(MessageFormat.format(Messages.Status_EndImport, projectContext.getProjectName())));
 			
@@ -75,11 +74,10 @@ public class ImportJob extends Job {
 			}
 		}
 
-		buildMonitor.setTaskName(buildResult);
-
+		progressMonitor.setTaskName(buildResult);
 		Messages.showPostBuildMessage(parentShell, buildResult, buildMessage);
 
-		projectContext.getTempDirs().deleteDirs(buildMonitor);
+		projectContext.getTempDirs().deleteDirs(progressMonitor);
 
 		return processResult.getStatus();
 	}

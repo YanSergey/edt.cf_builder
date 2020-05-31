@@ -42,7 +42,6 @@ public class ImportDialog extends Dialog {
 	}
 	
 	public Version getProjectSelectedVersion() {
-		//return Version.V8_3_14;
 		return projectVersion;
 	}
 	

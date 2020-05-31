@@ -64,7 +64,6 @@ public class TempDirs {
 		}
 
 		if (!file.delete())
-//			Activator.log(Activator.createInfoStatus(Messages.CfBuild_Error_Delete_Temp.replace("%fileName%", file.getAbsolutePath())));
 			Activator.log(Activator.createInfoStatus(MessageFormat.format(Messages.Status_ErrorDeleteTemp, file.getAbsolutePath())));
 	}
 

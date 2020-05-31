@@ -19,7 +19,7 @@ public class Activator extends Plugin {
 	// The shared instance
 	private static Activator plugin;
 
-	private static final String CF_BUILD_PREFIX = "[CF build] "; //$NON-NLS-1$
+	private static final String CF_BUILD_PREFIX = "[CF builder] "; //$NON-NLS-1$
 	private Injector injector;
 	private BundleContext bundleContext;
 

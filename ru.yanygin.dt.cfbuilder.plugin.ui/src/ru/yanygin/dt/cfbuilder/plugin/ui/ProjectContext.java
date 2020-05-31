@@ -1,6 +1,6 @@
 package ru.yanygin.dt.cfbuilder.plugin.ui;
 
-import java.util.HashMap;
+import java.util.Map;
 
 import com._1c.g5.v8.dt.platform.version.Version;
 
@@ -41,14 +41,14 @@ public class ProjectContext {
 		return version;
 	}
 	
-	public ProjectContext(String projectName, String platformPath, HashMap<String, String> cfNameInfo, TempDirs tempDirs, Version version) {
+	public ProjectContext(String projectName, String platformPath, Map<String, String> cfNameInfo, TempDirs tempDirs, Version version) {
 
 		this(projectName, platformPath, cfNameInfo, tempDirs);
 		this.version = version;
 
 	}
 
-	public ProjectContext(String projectName, String platformPath, HashMap<String, String> cfNameInfo, TempDirs tempDirs) {
+	public ProjectContext(String projectName, String platformPath, Map<String, String> cfNameInfo, TempDirs tempDirs) {
 
 		this.projectName = projectName;
 		this.platformPath = platformPath;

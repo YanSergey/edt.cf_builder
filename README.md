@@ -1,4 +1,4 @@
-# EDT Cf-builder
+# *EDT Cf-builder*
 
 [![Download](https://img.shields.io/github/release/YanSergey/edt.cf_builder?label=download&style=flat)](https://github.com/YanSergey/edt.cf_builder/releases/latest)
 [![GitHub Releases](https://img.shields.io/github/downloads/YanSergey/edt.cf_builder/latest/total?style=flat-square)](https://github.com/YanSergey/edt.cf_builder/releases)
@@ -9,17 +9,47 @@
 [![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=YanSergey_EDT_CF_Builder&metric=sqale_rating)](https://sonarcloud.io/dashboard?id=YanSergey_EDT_CF_Builder)
 
 
-Плагин для [1C:Enterprise Development Tools](https://edt.1c.ru/) для сборки CF файла
+Плагин для [1C:Enterprise Development Tools](https://edt.1c.ru/) для работы с CF-файлами.
 
-```Добавляет в контекстное меню проекта пункт "Собрать cf-файл":```
+## Добавляет в 1C:EDT возможности:
+        - Импорт проекта из cf-файла
+        - Экспорт проекта в cf-файл (сборка cf-файла)
 
-![Menu](/img/Menu.png "Меню с пунктом")
+### Импорт проекта из cf-файла
 
-Плагин совместим с EDT версий: 1.16, 2020.1, 2020.2, 2020.3
+```В контекстное меню рабочего пространства (клик по пустому месту в навигаторе проектов) и в главное меню "Файл" добавлены пункты:```
+
+        ru: Импортировать проект из cf-файла
+        en: Import project from a cf-file
+![Menu](/img/import1.png "Меню с пунктом") ![Menu](/img/import2.png "Меню с пунктом")
+
+### Экспорт проекта в cf-файл (сборка cf-файла)
+
+```В контекстное меню проекта добавлен пункт:```
+
+        ru: Собрать cf-файл
+        en: Build cf-file
+
+![Menu](/img/export.png "Меню с пунктом")
+
+
+Плагин совместим с 1C:EDT версий 1.16 и выше.
+
+Тестировался на версиях:
+
+        1.16
+        2020.1
+        2020.2
+        2020.3
 
 ### Установка:
 1. Скачать jar файл со страницы релизов [![Download](https://img.shields.io/github/release/YanSergey/edt.cf_builder?label=download&style=flat)](https://github.com/YanSergey/edt.cf_builder/releases/latest)
 
-2. Поместить файл в каталог с установленным EDT в подкаталог "***plugins***"
+2. Поместить файл в каталог с установленным EDT в подкаталог "***plugins***" (при наличии предыдущей версии плагина - удалить его)
 
-Для сборки cf-файла используется создание временных ИБ и workspace в каталоге для временных файлов EDT "***java.io.tmpdir***", заданном в "***1cedt.ini***". Необходимо учитывать наличие свободного пространства.
+При выполнении операций импорта/экспорта, в каталоге для временных файлов EDT "***java.io.tmpdir***", заданном в "***1cedt.ini***". создаются:
+
+* временная информационная база 1С (необходимо, что бы для файловых баз была доступна лицензия 1С)
+* временный каталог для конвертации исходников в формат платформенного xml
+
+Необходимо учитывать наличие достаточного количества свободного пространства. После выполнения операций временные каталоги очищаются автоматически.

@@ -14,7 +14,6 @@ public class BuildJob extends Job {
 	private ProcessResult processResult = new ProcessResult(Status.OK_STATUS);
 
 	private ProjectContext projectContext;
-//	private IProgressMonitor buildMonitor;
 	private Shell parentShell;
 
 	public BuildJob(ProjectContext projectContext, Shell parentShell) {
@@ -27,18 +26,13 @@ public class BuildJob extends Job {
 	@Override
 	protected IStatus run(IProgressMonitor progressMonitor) {
 
-		String buildResult;
-		String buildMessage;
-		
-//		this.buildMonitor = progressMonitor;
-
 		Actions.runPlatformV8Command(V8CommandTypes.CREATEINFOBASE, projectContext, processResult, progressMonitor);
 		Actions.runPlatformV8Command(V8CommandTypes.LOADCONFIGFROMFILES, projectContext, processResult, progressMonitor);
 		Actions.runPlatformV8Command(V8CommandTypes.DUMPCONFIGTOCF, projectContext, processResult, progressMonitor);
-//		Actions.createTempBase(projectContext, progressMonitor, processResult);
-//		Actions.loadConfigFromXml(projectContext, progressMonitor, processResult);
-//		Actions.dumpConfigToCf(projectContext, progressMonitor, processResult);
 
+		String buildResult;
+		String buildMessage;
+		
 		if (processResult.statusIsOK()) {
 			buildResult = Messages.Info_CfBuildIsDone;
 			buildMessage = Messages.Info_FileCfSaveIs
@@ -79,7 +73,6 @@ public class BuildJob extends Job {
 		}
 
 		progressMonitor.setTaskName(buildResult);
-
 		Messages.showPostBuildMessage(parentShell, buildResult, buildMessage);
 
 		projectContext.getTempDirs().deleteDirs(progressMonitor);

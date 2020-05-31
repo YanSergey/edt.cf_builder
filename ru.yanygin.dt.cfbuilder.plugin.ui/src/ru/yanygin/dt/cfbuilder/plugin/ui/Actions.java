@@ -104,105 +104,19 @@ public class Actions {
 		return false;
 	}
 
-	public static void createTempBase(ProjectContext projectContext, IProgressMonitor buildMonitor, ProcessResult processResult) {
-
-		if (!checkBuildState(projectContext, Messages.Actions_Create_TempBase, buildMonitor, processResult))
-			return;
-
-		Map<String, String> environmentVariables = new HashMap<>();
-		environmentVariables.put("PLATFORM_1C_PATH",	projectContext.getPlatformPath());
-		environmentVariables.put("BASE_1C_PATH",		projectContext.getTempDirs().getOnesBasePath());
-		environmentVariables.put("LOGFILE",				projectContext.getTempDirs().getLogFilePath());
-
-		String command = "%PLATFORM_1C_PATH% CREATEINFOBASE File=%BASE_1C_PATH% /Out %LOGFILE%";
-
-		runCommand(command, environmentVariables, processResult);
-	}
-	
-	public static void loadConfigFromXml(ProjectContext projectContext, IProgressMonitor buildMonitor, ProcessResult processResult) {
-
-		if (!checkBuildState(projectContext, Messages.Actions_Load_ConfigFromXml, buildMonitor, processResult))
-			return;
-
-		Map<String, String> environmentVariables = new HashMap<>();
-		environmentVariables.put("PLATFORM_1C_PATH",	projectContext.getPlatformPath());
-		environmentVariables.put("BASE_1C_PATH",		projectContext.getTempDirs().getOnesBasePath());
-		environmentVariables.put("outXmlDir",			projectContext.getTempDirs().getXmlPath());
-		environmentVariables.put("LOGFILE",				projectContext.getTempDirs().getLogFilePath());
-
-		String command = "%PLATFORM_1C_PATH% DESIGNER /F %BASE_1C_PATH% /LoadConfigFromFiles %outXmlDir% /Out %LOGFILE%";
-
-		runCommand(command, environmentVariables, processResult);
-
-	}
-	
-	public static void loadConfigFromCf(ProjectContext projectContext, IProgressMonitor buildMonitor, ProcessResult processResult) {
-
-		if (!checkBuildState(projectContext, Messages.Actions_Load_ConfigFromCf, buildMonitor, processResult))
-			return;
-
-		Map<String, String> environmentVariables = new HashMap<>();
-		environmentVariables.put("PLATFORM_1C_PATH",	projectContext.getPlatformPath());
-		environmentVariables.put("BASE_1C_PATH",		projectContext.getTempDirs().getOnesBasePath());
-		environmentVariables.put("cfName",				projectContext.getCfFullName());
-		environmentVariables.put("LOGFILE",				projectContext.getTempDirs().getLogFilePath());
-
-		String command = "%PLATFORM_1C_PATH% DESIGNER /F %BASE_1C_PATH% /LoadCfg \"%cfName%\" /Out %LOGFILE%";
-
-		runCommand(command, environmentVariables, processResult);
-
-	}
-
-	public static void dumpConfigToXml(ProjectContext projectContext, IProgressMonitor buildMonitor, ProcessResult processResult) {
-
-		if (!checkBuildState(projectContext, Messages.Actions_Dump_ConfigToXml, buildMonitor, processResult))
-			return;
-
-		File buildDir = new File(projectContext.getCfLocation());
-		if (!buildDir.exists()) {
-			buildDir.mkdir();
-		}
-
-		Map<String, String> environmentVariables = new HashMap<>();
-		environmentVariables.put("PLATFORM_1C_PATH",	projectContext.getPlatformPath());
-		environmentVariables.put("BASE_1C_PATH",		projectContext.getTempDirs().getOnesBasePath());
-		environmentVariables.put("outXmlDir",			projectContext.getTempDirs().getXmlPath());
-		environmentVariables.put("LOGFILE",				projectContext.getTempDirs().getLogFilePath());
-
-		String command = "%PLATFORM_1C_PATH% DESIGNER /F %BASE_1C_PATH% /DumpConfigToFiles %outXmlDir% /Out %LOGFILE%";
-
-		runCommand(command, environmentVariables, processResult);
-
-	}
-
-	public static void dumpConfigToCf(ProjectContext projectContext, IProgressMonitor buildMonitor, ProcessResult processResult) {
-
-		if (!checkBuildState(projectContext, Messages.Actions_Dump_ConfigToCf, buildMonitor, processResult))
-			return;
-
-		File buildDir = new File(projectContext.getCfLocation());
-		if (!buildDir.exists()) {
-			buildDir.mkdir();
-		}
-
-		Map<String, String> environmentVariables = new HashMap<>();
-		environmentVariables.put("PLATFORM_1C_PATH",	projectContext.getPlatformPath());
-		environmentVariables.put("BASE_1C_PATH",		projectContext.getTempDirs().getOnesBasePath());
-		environmentVariables.put("cfName",				projectContext.getCfFullName());
-		environmentVariables.put("LOGFILE",				projectContext.getTempDirs().getLogFilePath());
-
-		String command = "%PLATFORM_1C_PATH% DESIGNER /F %BASE_1C_PATH% /DumpCfg \"%cfName%\" /Out %LOGFILE%";
-
-		runCommand(command, environmentVariables, processResult);
-
-	}
-	
 	public static void runPlatformV8Command(V8CommandTypes commandType, ProjectContext projectContext, ProcessResult processResult, IProgressMonitor buildMonitor) {
 		
 		HashMap<String, String> v8command = PlatformV8Commands.getPlatformV8Command(commandType);
 
 		if (!checkBuildState(projectContext, v8command.get("actionMessage"), buildMonitor, processResult))
 			return;
+
+		if (commandType == V8CommandTypes.DUMPCONFIGTOCF) {
+			File buildDir = new File(projectContext.getCfLocation());
+			if (!buildDir.exists()) {
+				buildDir.mkdir();
+			}
+		}
 
 		IStatus status = Status.OK_STATUS;
 		String processOutput = "";
@@ -211,13 +125,12 @@ public class Actions {
 		ProcessBuilder processBuilder = new ProcessBuilder();
 
 		Map<String, String> env = processBuilder.environment();
-//		environmentVariables.forEach((k, v) -> env.put(k, v));
-		
+
 		env.put("PLATFORM_1C_PATH",	projectContext.getPlatformPath());
 		env.put("BASE_1C_PATH",		projectContext.getTempDirs().getOnesBasePath());
 		env.put("LOGFILE",			projectContext.getTempDirs().getLogFilePath());
-		env.put("outXmlDir",		projectContext.getTempDirs().getXmlPath());
-		env.put("cfName",			projectContext.getCfFullName());
+		env.put("XMLDIR",			projectContext.getTempDirs().getXmlPath());
+		env.put("CFNAME",			projectContext.getCfFullName());
 
 		processBuilder.command("cmd.exe", "/c", v8command.get("command"));
 		try {
@@ -249,7 +162,6 @@ public class Actions {
 			Configuration configuration, Path exportPath, SubMonitor progressBar) {
 		IStatus status;
 
-//		SubMonitor progressBar = SubMonitor.convert(monitor);
 		progressBar.subTask(Messages.Info_DataIsPreparing);
 
 		IExportService exportService = null;
@@ -268,9 +180,9 @@ public class Actions {
 	}
 
 	public static void importXmlToProject(IImportOperationFactory importOperationFactory, ProjectContext projectContext,
-			IProgressMonitor buildMonitor, ProcessResult processResult) {
+			ProcessResult processResult, IProgressMonitor buildMonitor) {
 
-		if (!Actions.checkBuildState(projectContext, Messages.Task_ImportProjectFromCf, buildMonitor, processResult))
+		if (!Actions.checkBuildState(projectContext, Messages.Actions_Import_ProjectFromXml, buildMonitor, processResult))
 			return;
 
 		IStatus status = Status.OK_STATUS;

@@ -65,8 +65,9 @@ public class CfImportHandler extends AbstractHandler {
 		
 		String platformPath = Actions.findEnterpriseRuntimePathFromVersion(version, runtimeVersionSupport, resolvableRuntimeInstallationManager);
 		if (platformPath == null) {
-			Activator.log(Activator.createErrorStatus(MessageFormat.format(Messages.Status_ErrorFindPlatform, version.toString())));
-			Messages.showPostBuildMessage(parentShell, Messages.Status_ErrorFindPlatform);
+			String errorText = MessageFormat.format(Messages.Status_ErrorFindPlatform, version.toString());
+			Activator.log(Activator.createErrorStatus(errorText));
+			Messages.showPostBuildMessage(parentShell, errorText);
 			return null;
 		}
 
