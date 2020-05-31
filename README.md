@@ -21,7 +21,7 @@
 
         ru: Импортировать проект из cf-файла
         en: Import project from a cf-file
-![Menu](/img/import1.png "Меню с пунктом") ![Menu](/img/import2.png "Меню с пунктом")
+![Menu](/img/import.png "Меню с пунктом")
 
 ### Экспорт проекта в cf-файл (сборка cf-файла)
 
