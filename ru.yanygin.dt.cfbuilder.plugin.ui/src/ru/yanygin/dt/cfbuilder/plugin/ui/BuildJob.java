@@ -18,7 +18,7 @@ public class BuildJob extends Job {
 
 	public BuildJob(ProjectContext projectContext, Shell parentShell) {
 		super(MessageFormat.format(Messages.Task_BuildCfFromProject, projectContext.getProjectName()));
-		
+
 		this.projectContext = projectContext;
 		this.parentShell = parentShell;
 	}
@@ -32,7 +32,7 @@ public class BuildJob extends Job {
 
 		String buildResult;
 		String buildMessage;
-		
+
 		if (processResult.statusIsOK()) {
 			buildResult = Messages.Info_CfBuildIsDone;
 			buildMessage = Messages.Info_FileCfSaveIs
@@ -45,13 +45,13 @@ public class BuildJob extends Job {
 		} else if (processResult.statusIsCancel()) {
 			buildResult = MessageFormat.format(Messages.Status_CfBuildCancel, projectContext.getProjectName());
 			buildMessage = buildResult;
-			
+
 			Activator.log(Activator.createInfoStatus(buildResult));
-			
+
 		} else {
 			buildResult = Messages.Status_OperationAbort;
 			buildMessage = Messages.Status_OperationAbort;
-			
+
 			Activator.log(Activator.createErrorStatus(buildResult));
 
 			if (!processResult.getOutput().isEmpty()) {

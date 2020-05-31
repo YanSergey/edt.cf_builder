@@ -19,14 +19,13 @@ import com.google.inject.Inject;
 import com._1c.g5.v8.dt.import_.IImportOperationFactory;
 
 public class CfImportHandler extends AbstractHandler {
-	
+
 	@Inject
 	private IRuntimeVersionSupport runtimeVersionSupport;
 	@Inject
 	private IResolvableRuntimeInstallationManager resolvableRuntimeInstallationManager;
 	@Inject
 	private IImportOperationFactory importOperationFactory;
-
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
@@ -62,7 +61,7 @@ public class CfImportHandler extends AbstractHandler {
 			Messages.showPostBuildMessage(parentShell, Messages.Status_ErrorCreateTempDirs);
 			return null;
 		}
-		
+
 		String platformPath = Actions.findEnterpriseRuntimePathFromVersion(version, runtimeVersionSupport, resolvableRuntimeInstallationManager);
 		if (platformPath == null) {
 			String errorText = MessageFormat.format(Messages.Status_ErrorFindPlatform, version.toString());

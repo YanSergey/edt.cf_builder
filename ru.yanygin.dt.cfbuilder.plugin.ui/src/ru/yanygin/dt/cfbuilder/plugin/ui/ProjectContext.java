@@ -16,7 +16,7 @@ public class ProjectContext {
 	private TempDirs tempDirs;
 
 	private Version version;
-	
+
 	public String getProjectName() {
 		return projectName;
 	}
@@ -40,8 +40,9 @@ public class ProjectContext {
 	public Version getVersion() {
 		return version;
 	}
-	
-	public ProjectContext(String projectName, String platformPath, Map<String, String> cfNameInfo, TempDirs tempDirs, Version version) {
+
+	public ProjectContext(String projectName, String platformPath, Map<String, String> cfNameInfo, TempDirs tempDirs,
+			Version version) {
 
 		this(projectName, platformPath, cfNameInfo, tempDirs);
 		this.version = version;

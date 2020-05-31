@@ -41,14 +41,16 @@ import ru.yanygin.dt.cfbuilder.plugin.ui.PlatformV8Commands.V8CommandTypes;
 
 public class Actions {
 
-	public static String findEnterpriseRuntimePathFromProject(IProject project, IRuntimeVersionSupport runtimeVersionSupport,
+	public static String findEnterpriseRuntimePathFromProject(IProject project,
+			IRuntimeVersionSupport runtimeVersionSupport,
 			IResolvableRuntimeInstallationManager resolvableRuntimeInstallationManager) {
-		
+
 		Version version = runtimeVersionSupport.getRuntimeVersion(project);
 		return findEnterpriseRuntimePathFromVersion(version, runtimeVersionSupport, resolvableRuntimeInstallationManager);
 	}
 
-	public static String findEnterpriseRuntimePathFromVersion(Version version, IRuntimeVersionSupport runtimeVersionSupport,
+	public static String findEnterpriseRuntimePathFromVersion(Version version,
+			IRuntimeVersionSupport runtimeVersionSupport,
 			IResolvableRuntimeInstallationManager resolvableRuntimeInstallationManager) {
 
 		IResolvableRuntimeInstallation resolvableRuntimeInstallation = resolvableRuntimeInstallationManager.getDefault(
@@ -63,9 +65,9 @@ public class Actions {
 		}
 		return "\"".concat(currentRuntime.getInstallLocation().toString()).concat("\\1cv8.exe\"");
 	}
-	
+
 	public static HashMap<String, String> askCfLocationPath(Shell parentShell, int style) {
-		
+
 		FileDialog saveDialog = new FileDialog(parentShell, style);
 		saveDialog.setText(Messages.Actions_Set_CF_Location);
 
@@ -86,7 +88,8 @@ public class Actions {
 		return cfNameInfo;
 	}
 
-	public static boolean checkBuildState(ProjectContext projectContext, String taskName, IProgressMonitor buildMonitor, ProcessResult processResult) {
+	public static boolean checkBuildState(ProjectContext projectContext, String taskName, IProgressMonitor buildMonitor,
+			ProcessResult processResult) {
 		if (processResult.statusIsOK() & buildMonitor.isCanceled()) {
 			processResult.setResult(Status.CANCEL_STATUS);
 
@@ -104,8 +107,9 @@ public class Actions {
 		return false;
 	}
 
-	public static void runPlatformV8Command(V8CommandTypes commandType, ProjectContext projectContext, ProcessResult processResult, IProgressMonitor buildMonitor) {
-		
+	public static void runPlatformV8Command(V8CommandTypes commandType, ProjectContext projectContext,
+			ProcessResult processResult, IProgressMonitor buildMonitor) {
+
 		HashMap<String, String> v8command = PlatformV8Commands.getPlatformV8Command(commandType);
 
 		if (!checkBuildState(projectContext, v8command.get("actionMessage"), buildMonitor, processResult))
@@ -182,7 +186,8 @@ public class Actions {
 	public static void importXmlToProject(IImportOperationFactory importOperationFactory, ProjectContext projectContext,
 			ProcessResult processResult, IProgressMonitor buildMonitor) {
 
-		if (!Actions.checkBuildState(projectContext, Messages.Actions_Import_ProjectFromXml, buildMonitor, processResult))
+		if (!Actions.checkBuildState(projectContext, Messages.Actions_Import_ProjectFromXml, buildMonitor,
+				processResult))
 			return;
 
 		IStatus status = Status.OK_STATUS;
@@ -210,12 +215,13 @@ public class Actions {
 			status = new Status(Status.ERROR, Activator.PLUGIN_ID, Messages.Status_UnknownError);
 			e.printStackTrace();
 		}
-		
+
 		processResult.setResult(status, processOutput);
 
 	}
-	
-	public static void runCommand(String command, Map<String, String> environmentVariables, ProcessResult processResult) {
+
+	public static void runCommand(String command, Map<String, String> environmentVariables,
+			ProcessResult processResult) {
 
 		IStatus status = Status.OK_STATUS;
 		String processOutput = "";

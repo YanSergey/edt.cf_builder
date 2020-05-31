@@ -25,11 +25,11 @@ public class ProcessResult {
 	public String getOutput() {
 		return output;
 	}
-	
+
 	public boolean statusIsOK() {
 		return status.isOK();
 	}
-	
+
 	public boolean statusIsCancel() {
 		return status == Status.CANCEL_STATUS;
 	}

@@ -19,7 +19,7 @@ public class ImportJob extends Job {
 
 	public ImportJob(ProjectContext projectContext, Shell parentShell, IImportOperationFactory importOperationFactory) {
 		super(MessageFormat.format(Messages.Task_ImportProjectFromCf, projectContext.getProjectName()));
-		
+
 		this.projectContext = projectContext;
 		this.parentShell = parentShell;
 		this.importOperationFactory = importOperationFactory;
@@ -43,17 +43,17 @@ public class ImportJob extends Job {
 			buildMessage = MessageFormat.format(Messages.Info_FileCfImportTo, projectContext.getProjectName());
 
 			Activator.log(Activator.createInfoStatus(MessageFormat.format(Messages.Status_EndImport, projectContext.getProjectName())));
-			
+
 		} else if (processResult.statusIsCancel()) {
 			buildResult = MessageFormat.format(Messages.Status_ImportFromCfCancel, projectContext.getProjectName());
 			buildMessage = buildResult;
-			
+
 			Activator.log(Activator.createInfoStatus(buildResult));
-			
+
 		} else {
 			buildResult = Messages.Status_OperationAbort;
 			buildMessage = Messages.Status_OperationAbort;
-			
+
 			Activator.log(Activator.createErrorStatus(buildResult));
 
 			if (!processResult.getOutput().isEmpty()) {

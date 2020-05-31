@@ -49,11 +49,11 @@ public class CfBuilderHandler extends AbstractHandler {
 		if (!PlatformUI.getWorkbench().saveAllEditors(true)) {
 			return null;
 		}
-		
+
 		IWorkbenchWindow windowInfo = HandlerUtil.getActiveWorkbenchWindowChecked(event);
 		Shell parentShell = windowInfo.getShell();
 		IWorkbenchPage page = windowInfo.getActivePage();
-		
+
 		HashMap<String, String> cfNameInfo = Actions.askCfLocationPath(parentShell, SWT.SAVE);
 		if (cfNameInfo == null) {
 			Activator.log(Activator.createInfoStatus(Messages.Status_CancelFileCfSelestion));
@@ -67,7 +67,7 @@ public class CfBuilderHandler extends AbstractHandler {
 			Messages.showPostBuildMessage(parentShell, Messages.Status_ErrorGetProject);
 			return null;
 		}
-		
+
 		TempDirs tempDirs = new TempDirs();
 		if (!tempDirs.createTempDirs()) {
 			Activator.log(Activator.createErrorStatus(Messages.Status_ErrorCreateTempDirs));
@@ -75,7 +75,6 @@ public class CfBuilderHandler extends AbstractHandler {
 			return null;
 		}
 
-		
 		ProgressMonitorDialog progressDialog = new ProgressMonitorDialog(parentShell);
 
 		Display.getDefault().asyncExec(() -> {
@@ -84,7 +83,7 @@ public class CfBuilderHandler extends AbstractHandler {
 				progressDialog.run(true, true, new IRunnableWithProgress() {
 					@Override
 					public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
-						
+
 						String projectName = project.getLocation().toFile().getName();
 						Version version = runtimeVersionSupport.getRuntimeVersion(project);
 						Configuration configuration = configurationProvider.getConfiguration(project);
@@ -92,7 +91,8 @@ public class CfBuilderHandler extends AbstractHandler {
 
 						Activator.log(Activator.createInfoStatus(MessageFormat.format(Messages.Status_StartBuild, projectName)));
 
-						IStatus status = Actions.exportProjectToXml(exportServiceRegistry, version, configuration, exportPath, SubMonitor.convert(monitor));
+						IStatus status = Actions.exportProjectToXml(exportServiceRegistry, version, configuration,
+								exportPath, SubMonitor.convert(monitor));
 
 						if (!status.isOK()) {
 
@@ -101,7 +101,7 @@ public class CfBuilderHandler extends AbstractHandler {
 								Activator.log(Activator.createInfoStatus(title));
 								Messages.showPostBuildMessage(parentShell, title);
 							} else {
-								String title = Messages.Status_UnknownError;							
+								String title = Messages.Status_UnknownError;
 								Activator.log(Activator.createErrorStatus(title));
 								Messages.showPostBuildMessage(parentShell, title, status.getMessage());
 							}

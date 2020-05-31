@@ -13,7 +13,7 @@ class Messages extends NLS {
 
 	public static String Task_BuildCfFromProject;
 	public static String Task_ImportProjectFromCf;
-	
+
 	public static String Actions_Set_CF_Location;
 	public static String Actions_Create_TempBase;
 	public static String Actions_Load_ConfigFromXml;
@@ -22,12 +22,12 @@ class Messages extends NLS {
 	public static String Actions_Dump_ConfigToCf;
 	public static String Actions_Import_ProjectFromXml;
 	public static String Actions_ClearingTemp;
-	
+
 	public static String Status_StartBuild;
 	public static String Status_EndBuild;
 	public static String Status_StartImport;
 	public static String Status_EndImport;
-	
+
 	public static String Status_OperationAbort;
 	public static String Status_CfBuildCancel;
 	public static String Status_ImportFromCfCancel;
@@ -44,7 +44,7 @@ class Messages extends NLS {
 	public static String Info_FileCfSaveIs;
 	public static String Info_ImportFromCfIsDone;
 	public static String Info_FileCfImportTo;
-	
+
 	public static String Filter_1C_Files;
 
 	public static String Dialog_ImportProjectFromCf;
@@ -54,18 +54,17 @@ class Messages extends NLS {
 	public static String Dialog_CfPath;
 	public static String Dialog_View;
 
-
 	static {
 		NLS.initializeMessages(BUNDLE_NAME, Messages.class);
 	}
 
 	private Messages() {
 	}
-	
+
 	public static void showPostBuildMessage(Shell parentShell, String buildMessage) {
 		showPostBuildMessage(parentShell, buildMessage, buildMessage);
 	}
-	
+
 	public static void showPostBuildMessage(Shell parentShell, String buildTitle, String buildMessage) {
 		Display.getDefault()
 				.asyncExec(() -> MessageDialog.openInformation(parentShell, buildTitle, buildMessage));

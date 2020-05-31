@@ -13,7 +13,9 @@ public class PlatformV8Commands {
 	private static final String DUMPCONFIGTOCF 		= "/DumpCfg \"%CFNAME%\"";
 	private static final String LOGFILE 			= "/Out \"%LOGFILE%\"";
 
-	public enum V8CommandTypes {CREATEINFOBASE, LOADCONFIGFROMFILES, LOADCONFIGFROMCF, DUMPCONFIGTOFILES, DUMPCONFIGTOCF};
+	public enum V8CommandTypes {
+		CREATEINFOBASE, LOADCONFIGFROMFILES, LOADCONFIGFROMCF, DUMPCONFIGTOFILES, DUMPCONFIGTOCF
+	};
 
 	public static HashMap<String, String> getPlatformV8Command(V8CommandTypes commandType) {
 
