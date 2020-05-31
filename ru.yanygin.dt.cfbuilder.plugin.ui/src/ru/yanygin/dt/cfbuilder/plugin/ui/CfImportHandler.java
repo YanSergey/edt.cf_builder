@@ -1,8 +1,8 @@
 package ru.yanygin.dt.cfbuilder.plugin.ui;
 
 import java.text.MessageFormat;
-import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
@@ -52,7 +52,7 @@ public class CfImportHandler extends AbstractHandler {
 			return null;
 		}
 		Version version = importDialog.getProjectSelectedVersion();
-		HashMap<String, String> cfNameInfo = importDialog.getProjectSelectedCfNameInfo();
+		Map<String, String> cfNameInfo = importDialog.getProjectSelectedCfNameInfo();
 		projectName = importDialog.getNewProjectName();
 
 		TempDirs tempDirs = new TempDirs();
@@ -62,7 +62,7 @@ public class CfImportHandler extends AbstractHandler {
 			return null;
 		}
 
-		String platformPath = Actions.findEnterpriseRuntimePathFromVersion(version, runtimeVersionSupport, resolvableRuntimeInstallationManager);
+		String platformPath = Actions.findEnterpriseRuntimePathFromVersion(version, resolvableRuntimeInstallationManager);
 		if (platformPath == null) {
 			String errorText = MessageFormat.format(Messages.Status_ErrorFindPlatform, version.toString());
 			Activator.log(Activator.createErrorStatus(errorText));

@@ -40,17 +40,19 @@ import com._1c.g5.v8.dt.platform.version.Version;
 import ru.yanygin.dt.cfbuilder.plugin.ui.PlatformV8Commands.V8CommandTypes;
 
 public class Actions {
+	
+	private Actions() {
+	}
 
 	public static String findEnterpriseRuntimePathFromProject(IProject project,
 			IRuntimeVersionSupport runtimeVersionSupport,
 			IResolvableRuntimeInstallationManager resolvableRuntimeInstallationManager) {
 
 		Version version = runtimeVersionSupport.getRuntimeVersion(project);
-		return findEnterpriseRuntimePathFromVersion(version, runtimeVersionSupport, resolvableRuntimeInstallationManager);
+		return findEnterpriseRuntimePathFromVersion(version, resolvableRuntimeInstallationManager);
 	}
 
 	public static String findEnterpriseRuntimePathFromVersion(Version version,
-			IRuntimeVersionSupport runtimeVersionSupport,
 			IResolvableRuntimeInstallationManager resolvableRuntimeInstallationManager) {
 
 		IResolvableRuntimeInstallation resolvableRuntimeInstallation = resolvableRuntimeInstallationManager.getDefault(
@@ -66,7 +68,7 @@ public class Actions {
 		return "\"".concat(currentRuntime.getInstallLocation().toString()).concat("\\1cv8.exe\"");
 	}
 
-	public static HashMap<String, String> askCfLocationPath(Shell parentShell, int style) {
+	public static Map<String, String> askCfLocationPath(Shell parentShell, int style) {
 
 		FileDialog saveDialog = new FileDialog(parentShell, style);
 		saveDialog.setText(Messages.Actions_Set_CF_Location);
@@ -76,7 +78,7 @@ public class Actions {
 		saveDialog.setFilterExtensions(filterExt);
 		saveDialog.setFilterNames(filterNames);
 
-		HashMap<String, String> cfNameInfo = null;
+		Map<String, String> cfNameInfo = null;
 
 		String cfFullName = saveDialog.open();
 		if (cfFullName != null) {
@@ -110,7 +112,7 @@ public class Actions {
 	public static void runPlatformV8Command(V8CommandTypes commandType, ProjectContext projectContext,
 			ProcessResult processResult, IProgressMonitor buildMonitor) {
 
-		HashMap<String, String> v8command = PlatformV8Commands.getPlatformV8Command(commandType);
+		Map<String, String> v8command = PlatformV8Commands.getPlatformV8Command(commandType);
 
 		if (!checkBuildState(projectContext, v8command.get("actionMessage"), buildMonitor, processResult))
 			return;
@@ -128,7 +130,7 @@ public class Actions {
 		Process process;
 		ProcessBuilder processBuilder = new ProcessBuilder();
 
-		Map<String, String> env = processBuilder.environment();
+		Map<String, String> env = processBuilder.environment(); // NOSONAR
 
 		env.put("PLATFORM_1C_PATH",	projectContext.getPlatformPath());
 		env.put("BASE_1C_PATH",		projectContext.getTempDirs().getOnesBasePath());
@@ -153,7 +155,7 @@ public class Actions {
 				Activator.log(Activator.createErrorStatus(Messages.Status_OperationAbort));
 			}
 
-		} catch (IOException | InterruptedException e) {
+		} catch (IOException | InterruptedException e) { // NOSONAR
 			status = new Status(Status.ERROR, Activator.PLUGIN_ID, Messages.Status_UnknownError);
 			Activator.log(Activator.createErrorStatus(Messages.Status_UnknownError.concat(processOutput), e));
 		}
@@ -174,12 +176,11 @@ public class Actions {
 		} catch (ExportException ex) {
 			status = new Status(Status.ERROR, Activator.PLUGIN_ID, Messages.Status_UnknownError);
 			Activator.log(Activator.createErrorStatus(ex.getLocalizedMessage(), ex));
-			ex.printStackTrace();
+			return status;
 		}
 		boolean exportSubordinatesObjects = IExportStrategy.DEFAULT.exportExternalProperties(configuration);
 		boolean exportExternalProperties = IExportStrategy.DEFAULT.exportExternalProperties(configuration);
-		status = exportService.work(configuration, exportPath, exportSubordinatesObjects, exportExternalProperties,
-				progressBar);
+		status = exportService.work(configuration, exportPath, exportSubordinatesObjects, exportExternalProperties, progressBar);
 		return status;
 	}
 
@@ -203,7 +204,7 @@ public class Actions {
 				project.delete(true, true, subMonitor.newChild(4));
 			} catch (CoreException e) {
 				status = new Status(Status.ERROR, Activator.PLUGIN_ID, Messages.Status_UnknownError);
-				e.printStackTrace();
+				Activator.log(Activator.createErrorStatus(e.getLocalizedMessage(), e));
 			}
 		}
 
@@ -211,47 +212,9 @@ public class Actions {
 				projectContext.getProjectName(), projectContext.getVersion(), importPath);
 		try {
 			importOperation.run(buildMonitor);
-		} catch (InvocationTargetException | InterruptedException e) {
+		} catch (InvocationTargetException | InterruptedException e) { // NOSONAR
 			status = new Status(Status.ERROR, Activator.PLUGIN_ID, Messages.Status_UnknownError);
-			e.printStackTrace();
-		}
-
-		processResult.setResult(status, processOutput);
-
-	}
-
-	public static void runCommand(String command, Map<String, String> environmentVariables,
-			ProcessResult processResult) {
-
-		IStatus status = Status.OK_STATUS;
-		String processOutput = "";
-
-		Process process;
-		ProcessBuilder processBuilder = new ProcessBuilder();
-
-		Map<String, String> env = processBuilder.environment();
-		environmentVariables.forEach((k, v) -> env.put(k, v));
-
-		processBuilder.command("cmd.exe", "/c", command);
-		try {
-			process = processBuilder.start();
-
-			BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream(), "windows-1251"));
-
-			String line;
-			while ((line = reader.readLine()) != null) {
-				processOutput = processOutput.concat(System.lineSeparator()).concat(line);
-			}
-
-			int exitCode = process.waitFor();
-			if (exitCode != 0) {
-				status = new Status(Status.ERROR, Activator.PLUGIN_ID, Messages.Status_OperationAbort);
-				Activator.log(Activator.createErrorStatus(Messages.Status_OperationAbort));
-			}
-
-		} catch (IOException | InterruptedException e) {
-			status = new Status(Status.ERROR, Activator.PLUGIN_ID, Messages.Status_UnknownError);
-			Activator.log(Activator.createErrorStatus(Messages.Status_UnknownError.concat(processOutput), e));
+			Activator.log(Activator.createErrorStatus(e.getLocalizedMessage(), e));
 		}
 
 		processResult.setResult(status, processOutput);

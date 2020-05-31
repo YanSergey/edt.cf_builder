@@ -37,7 +37,7 @@ public class TempDirs {
 		this.onesBasePath	= tempDirPath + "\\base";
 		this.logFilePath	= tempDirPath + "\\out.log";
 
-		if (new File(xmlPath).mkdir() | new File(onesBasePath).mkdir())
+		if (new File(xmlPath).mkdir() & new File(onesBasePath).mkdir())
 			return true;
 		else {
 			Activator.log(Activator.createErrorStatus(Messages.Status_ErrorCreateTempDirs));

@@ -1,13 +1,17 @@
 package ru.yanygin.dt.cfbuilder.plugin.ui;
 
-import java.util.HashMap;
+import java.util.Map;
 
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
+import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
@@ -21,7 +25,6 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.ModifyEvent;
-import org.eclipse.wb.swt.SWTResourceManager;
 
 public class ImportDialog extends Dialog {
 	private Text projectNameTextBox;
@@ -32,7 +35,7 @@ public class ImportDialog extends Dialog {
 	private java.util.List<Version> supportedVersion;
 	private Version projectVersion;
 	private Shell parentShell;
-	private HashMap<String, String> cfNameInfo;
+	private Map<String, String> cfNameInfo;
 
 	private Label projectNameExistsLabel;
 
@@ -45,7 +48,7 @@ public class ImportDialog extends Dialog {
 		return projectVersion;
 	}
 
-	public HashMap<String, String> getProjectSelectedCfNameInfo() {
+	public Map<String, String> getProjectSelectedCfNameInfo() {
 		return cfNameInfo;
 	}
 
@@ -74,22 +77,22 @@ public class ImportDialog extends Dialog {
 		container.setLayout(null);
 
 		Composite composite = new Composite(container, SWT.NONE);
-		composite.setBackground(SWTResourceManager.getColor(SWT.COLOR_WIDGET_HIGHLIGHT_SHADOW));
+		composite.setBackground(getColor(SWT.COLOR_WIDGET_HIGHLIGHT_SHADOW));
 		composite.setBounds(0, 0, 444, 64);
 
 		Label lblNewLabel = new Label(composite, SWT.NONE);
-		lblNewLabel.setFont(SWTResourceManager.getFont("Segoe UI", 12, SWT.BOLD));
+		lblNewLabel.setFont(getFont("Segoe UI", 12, SWT.BOLD));
 		lblNewLabel.setLocation(10, 10);
 		lblNewLabel.setSize(424, 28);
 		lblNewLabel.setTouchEnabled(true);
-		lblNewLabel.setBackground(SWTResourceManager.getColor(SWT.COLOR_WIDGET_HIGHLIGHT_SHADOW));
+		lblNewLabel.setBackground(getColor(SWT.COLOR_WIDGET_HIGHLIGHT_SHADOW));
 		lblNewLabel.setText(Messages.Dialog_ImportProjectFromCf);
 
 		Label lblCf = new Label(composite, SWT.NONE);
 		lblCf.setTouchEnabled(true);
 		lblCf.setText(Messages.Actions_Set_CF_Location);
-		lblCf.setFont(SWTResourceManager.getFont("Segoe UI", 10, SWT.NORMAL));
-		lblCf.setBackground(SWTResourceManager.getColor(SWT.COLOR_WIDGET_HIGHLIGHT_SHADOW));
+		lblCf.setFont(getFont("Segoe UI", 10, SWT.NORMAL));
+		lblCf.setBackground(getColor(SWT.COLOR_WIDGET_HIGHLIGHT_SHADOW));
 		lblCf.setBounds(20, 34, 402, 17);
 
 		Label projectNameLabel = new Label(container, SWT.NONE);
@@ -114,7 +117,7 @@ public class ImportDialog extends Dialog {
 		projectNameTextBox.setBounds(89, 76, 260, 23);
 
 		projectNameExistsLabel = new Label(container, SWT.NONE);
-		projectNameExistsLabel.setForeground(SWTResourceManager.getColor(SWT.COLOR_RED));
+		projectNameExistsLabel.setForeground(getColor(SWT.COLOR_RED));
 		projectNameExistsLabel.setBounds(355, 79, 69, 15);
 		projectNameExistsLabel.setText(Messages.Dialog_ProjectExists);
 		projectNameExistsLabel.setVisible(false);
@@ -197,5 +200,14 @@ public class ImportDialog extends Dialog {
 	private void setButtonOKEnabled() {
 		boolean enabled = !projectName.isEmpty() & !projectIsExists & projectVersion != null & cfNameInfo != null;
 		buttonOK.setEnabled(enabled);
+	}
+
+	public static Color getColor(int systemColorID) {
+		return Display.getCurrent().getSystemColor(systemColorID);
+	}
+
+	public static Font getFont(String name, int size, int style) {
+		FontData fontData = new FontData(name, size, style);
+		return new Font(Display.getCurrent(), fontData);
 	}
 }

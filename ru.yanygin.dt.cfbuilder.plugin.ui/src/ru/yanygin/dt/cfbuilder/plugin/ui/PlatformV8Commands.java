@@ -1,6 +1,7 @@
 package ru.yanygin.dt.cfbuilder.plugin.ui;
 
 import java.util.HashMap;
+import java.util.Map;
 
 public class PlatformV8Commands {
 
@@ -17,9 +18,9 @@ public class PlatformV8Commands {
 		CREATEINFOBASE, LOADCONFIGFROMFILES, LOADCONFIGFROMCF, DUMPCONFIGTOFILES, DUMPCONFIGTOCF
 	};
 
-	public static HashMap<String, String> getPlatformV8Command(V8CommandTypes commandType) {
+	public static Map<String, String> getPlatformV8Command(V8CommandTypes commandType) {
 
-		HashMap<String, String> command = new HashMap<>();
+		Map<String, String> command = new HashMap<>();
 
 		switch (commandType) {
 			case CREATEINFOBASE:
