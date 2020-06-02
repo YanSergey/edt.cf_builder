@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: %Bundle-Name
 Bundle-SymbolicName: ru.yanygin.dt.cfbuilder.plugin.ui;singleton:=true
-Bundle-Version: 1.1.0.b
+Bundle-Version: 1.1.0
 Bundle-Activator: ru.yanygin.dt.cfbuilder.plugin.ui.Activator
 Bundle-Vendor: %Bundle-Vendor
 Require-Bundle: org.eclipse.ui,
