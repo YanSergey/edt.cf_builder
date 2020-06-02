@@ -16,6 +16,10 @@ public class ImportJob extends Job {
 	private ProjectContext projectContext;
 	private Shell parentShell;
 	private IImportOperationFactory importOperationFactory;
+	
+	public enum SupportMode {
+		DEFAULT, DISABLESUPPORT
+	}
 
 	public ImportJob(ProjectContext projectContext, Shell parentShell, IImportOperationFactory importOperationFactory) {
 		super(MessageFormat.format(Messages.Task_ImportProjectFromCf, projectContext.getProjectName()));

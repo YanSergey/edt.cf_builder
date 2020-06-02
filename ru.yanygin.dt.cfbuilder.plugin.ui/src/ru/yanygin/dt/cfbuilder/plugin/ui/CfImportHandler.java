@@ -2,8 +2,6 @@ package ru.yanygin.dt.cfbuilder.plugin.ui;
 
 import java.text.MessageFormat;
 import java.util.List;
-import java.util.Map;
-
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
@@ -16,6 +14,9 @@ import com._1c.g5.v8.dt.platform.services.core.runtimes.environments.IResolvable
 import com._1c.g5.v8.dt.platform.version.IRuntimeVersionSupport;
 import com._1c.g5.v8.dt.platform.version.Version;
 import com.google.inject.Inject;
+
+import ru.yanygin.dt.cfbuilder.plugin.ui.ImportJob.SupportMode;
+
 import com._1c.g5.v8.dt.import_.IImportOperationFactory;
 
 public class CfImportHandler extends AbstractHandler {
@@ -52,8 +53,9 @@ public class CfImportHandler extends AbstractHandler {
 			return null;
 		}
 		Version version = importDialog.getProjectSelectedVersion();
-		Map<String, String> cfNameInfo = importDialog.getProjectSelectedCfNameInfo();
+		CfFileInfo cfFileInfo = importDialog.getProjectSelectedCfNameInfo();
 		projectName = importDialog.getNewProjectName();
+		SupportMode supportMode = importDialog.getSupportMode();
 
 		TempDirs tempDirs = new TempDirs();
 		if (!tempDirs.createTempDirs()) {
@@ -70,7 +72,7 @@ public class CfImportHandler extends AbstractHandler {
 			return null;
 		}
 
-		ProjectContext projectContext = new ProjectContext(projectName, platformPath, cfNameInfo, tempDirs, version);
+		ProjectContext projectContext = new ProjectContext(projectName, platformPath, cfFileInfo, tempDirs, version, supportMode);
 
 		ImportJob importJob = new ImportJob(projectContext, parentShell, importOperationFactory);
 		importJob.schedule();

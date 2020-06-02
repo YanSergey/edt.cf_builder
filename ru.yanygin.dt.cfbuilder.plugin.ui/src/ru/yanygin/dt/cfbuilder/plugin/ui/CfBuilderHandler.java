@@ -4,8 +4,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.MessageFormat;
-import java.util.Map;
-
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
@@ -55,8 +53,8 @@ public class CfBuilderHandler extends AbstractHandler {
 		Shell parentShell = windowInfo.getShell();
 		IWorkbenchPage page = windowInfo.getActivePage();
 
-		Map<String, String> cfNameInfo = Actions.askCfLocationPath(parentShell, SWT.SAVE);
-		if (cfNameInfo == null) {
+		CfFileInfo cfFileInfo = Actions.askCfLocationPath(parentShell, SWT.SAVE);
+		if (cfFileInfo == null) {
 			Activator.log(Activator.createInfoStatus(Messages.Status_CancelFileCfSelestion));
 			Messages.showPostBuildMessage(parentShell, Messages.Status_CancelFileCfSelestion);
 			return null;
@@ -117,7 +115,7 @@ public class CfBuilderHandler extends AbstractHandler {
 							return;
 						}
 
-						ProjectContext projectContext = new ProjectContext(projectName, platformPath, cfNameInfo, tempDirs);
+						ProjectContext projectContext = new ProjectContext(projectName, platformPath, cfFileInfo, tempDirs);
 
 						BuildJob buildJob = new BuildJob(projectContext, parentShell);
 						buildJob.schedule();

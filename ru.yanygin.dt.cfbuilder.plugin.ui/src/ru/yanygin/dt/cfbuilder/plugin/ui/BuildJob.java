@@ -38,7 +38,7 @@ public class BuildJob extends Job {
 			buildMessage = Messages.Info_FileCfSaveIs
 							.concat(System.lineSeparator())
 							.concat(System.lineSeparator())
-							.concat(projectContext.getCfFullName());
+							.concat(projectContext.getCfFileInfo().FULLNAME);
 
 			Activator.log(Activator.createInfoStatus(MessageFormat.format(Messages.Status_EndBuild, projectContext.getProjectName())));
 			

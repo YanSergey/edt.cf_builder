@@ -52,7 +52,7 @@ public class TempDirs {
 		buildMonitor.done();
 	}
 
-	private static void recursiveDelete(File file) {
+	public static void recursiveDelete(File file) {
 
 		if (!file.exists())
 			return;
@@ -64,7 +64,7 @@ public class TempDirs {
 		}
 
 		if (!file.delete())
-			Activator.log(Activator.createInfoStatus(MessageFormat.format(Messages.Status_ErrorDeleteTemp, file.getAbsolutePath())));
+			Activator.log(Activator.createInfoStatus(MessageFormat.format(Messages.Info_ErrorDeleteFile, file.getAbsolutePath())));
 	}
 
 }

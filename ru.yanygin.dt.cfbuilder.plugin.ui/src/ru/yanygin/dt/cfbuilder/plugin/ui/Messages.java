@@ -35,15 +35,16 @@ class Messages extends NLS {
 	public static String Status_CancelFileCfSelestion;
 	public static String Status_ErrorGetProject;
 	public static String Status_ErrorCreateTempDirs;
-
 	public static String Status_ErrorFindPlatform;
-	public static String Status_ErrorDeleteTemp;
 
 	public static String Info_DataIsPreparing;
 	public static String Info_CfBuildIsDone;
 	public static String Info_FileCfSaveIs;
 	public static String Info_ImportFromCfIsDone;
 	public static String Info_FileCfImportTo;
+	public static String Info_ErrorDeleteFile;
+	public static String Info_FileSupportNotFound;
+	public static String Info_FileDelete;
 
 	public static String Filter_1C_Files;
 
@@ -53,6 +54,10 @@ class Messages extends NLS {
 	public static String Dialog_V8Version;
 	public static String Dialog_CfPath;
 	public static String Dialog_View;
+	public static String Dialog_SupportlabelText;
+	public static String Dialog_SupportModeDefault;
+	public static String Dialog_SupportModeDisable;
+	public static String Dialog_SetNewProjectProperties;
 
 	static {
 		NLS.initializeMessages(BUNDLE_NAME, Messages.class);

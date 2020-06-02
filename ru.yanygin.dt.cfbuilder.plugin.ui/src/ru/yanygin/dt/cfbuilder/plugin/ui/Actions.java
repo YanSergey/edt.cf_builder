@@ -10,7 +10,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.MessageFormat;
-import java.util.HashMap;
 import java.util.Map;
 
 import org.eclipse.core.resources.IProject;
@@ -37,6 +36,7 @@ import com._1c.g5.v8.dt.platform.services.model.RuntimeInstallation;
 import com._1c.g5.v8.dt.platform.version.IRuntimeVersionSupport;
 import com._1c.g5.v8.dt.platform.version.Version;
 
+import ru.yanygin.dt.cfbuilder.plugin.ui.ImportJob.SupportMode;
 import ru.yanygin.dt.cfbuilder.plugin.ui.PlatformV8Commands.V8CommandTypes;
 
 public class Actions {
@@ -68,26 +68,25 @@ public class Actions {
 		return "\"".concat(currentRuntime.getInstallLocation().toString()).concat("\\1cv8.exe\"");
 	}
 
-	public static Map<String, String> askCfLocationPath(Shell parentShell, int style) {
+	public static CfFileInfo askCfLocationPath(Shell parentShell, int style) {
 
-		FileDialog saveDialog = new FileDialog(parentShell, style);
-		saveDialog.setText(Messages.Actions_Set_CF_Location);
+		FileDialog fileDialog = new FileDialog(parentShell, style);
+		fileDialog.setText(Messages.Actions_Set_CF_Location);
 
 		String[] filterExt = { "*.cf" };
 		String[] filterNames = { Messages.Filter_1C_Files };
-		saveDialog.setFilterExtensions(filterExt);
-		saveDialog.setFilterNames(filterNames);
+		fileDialog.setFilterExtensions(filterExt);
+		fileDialog.setFilterNames(filterNames);
 
-		Map<String, String> cfNameInfo = null;
-
-		String cfFullName = saveDialog.open();
+		CfFileInfo cfFileInfo = null;
+		String cfFullName = fileDialog.open();
 		if (cfFullName != null) {
-			cfNameInfo = new HashMap<>();
-			cfNameInfo.put("cfFullName", cfFullName);
-			cfNameInfo.put("cfLocation", saveDialog.getFilterPath());
+			
+			cfFileInfo = new CfFileInfo(cfFullName, fileDialog.getFilterPath(), fileDialog.getFileName(),
+					fileDialog.getFileName().replace(".cf", ""));
 		}
 
-		return cfNameInfo;
+		return cfFileInfo;
 	}
 
 	public static boolean checkBuildState(ProjectContext projectContext, String taskName, IProgressMonitor buildMonitor,
@@ -118,7 +117,7 @@ public class Actions {
 			return;
 
 		if (commandType == V8CommandTypes.DUMPCONFIGTOCF) {
-			File buildDir = new File(projectContext.getCfLocation());
+			File buildDir = new File(projectContext.getCfFileInfo().LOCATION);
 			if (!buildDir.exists()) {
 				buildDir.mkdir();
 			}
@@ -132,11 +131,11 @@ public class Actions {
 
 		Map<String, String> env = processBuilder.environment(); // NOSONAR
 
-		env.put("PLATFORM_1C_PATH",	projectContext.getPlatformPath());
+		env.put("PLATFORM_1C_PATH",	projectContext.getPlatformV8Path());
 		env.put("BASE_1C_PATH",		projectContext.getTempDirs().getOnesBasePath());
 		env.put("LOGFILE",			projectContext.getTempDirs().getLogFilePath());
 		env.put("XMLDIR",			projectContext.getTempDirs().getXmlPath());
-		env.put("CFNAME",			projectContext.getCfFullName());
+		env.put("CFNAME",			projectContext.getCfFileInfo().FULLNAME);
 
 		processBuilder.command("cmd.exe", "/c", v8command.get("command"));
 		try {
@@ -191,6 +190,8 @@ public class Actions {
 				processResult))
 			return;
 
+		changeSupportMode(projectContext);
+
 		IStatus status = Status.OK_STATUS;
 		String processOutput = "";
 
@@ -209,7 +210,7 @@ public class Actions {
 		}
 
 		IImportOperation importOperation = importOperationFactory.createImportConfigurationOperation(
-				projectContext.getProjectName(), projectContext.getVersion(), importPath);
+				projectContext.getProjectName(), projectContext.getV8version(), importPath);
 		try {
 			importOperation.run(buildMonitor);
 		} catch (InvocationTargetException | InterruptedException e) { // NOSONAR
@@ -219,6 +220,21 @@ public class Actions {
 
 		processResult.setResult(status, processOutput);
 
+	}
+
+	private static void changeSupportMode(ProjectContext projectContext) {
+		if (projectContext.getSupportMode() == SupportMode.DISABLESUPPORT) {
+			String[] parentConfigurationsFiles = projectContext.getParentConfigurationsFiles();
+			for (String fileName : parentConfigurationsFiles) {
+				File parentFile = new File(fileName);
+				if (parentFile.exists()) {
+					TempDirs.recursiveDelete(parentFile);
+					Activator.log(Activator.createInfoStatus(MessageFormat.format(Messages.Info_FileDelete, parentFile.getAbsolutePath())));
+				} else {
+					Activator.log(Activator.createInfoStatus(Messages.Info_FileSupportNotFound));
+				}
+			}
+		}
 	}
 
 	public static String readOutLogFile(String fileName) {

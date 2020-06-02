@@ -1,7 +1,5 @@
 package ru.yanygin.dt.cfbuilder.plugin.ui;
 
-import java.util.Map;
-
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
@@ -16,6 +14,8 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
 import com._1c.g5.v8.dt.platform.version.Version;
+
+import ru.yanygin.dt.cfbuilder.plugin.ui.ImportJob.SupportMode;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Label;
@@ -35,9 +35,11 @@ public class ImportDialog extends Dialog {
 	private java.util.List<Version> supportedVersion;
 	private Version projectVersion;
 	private Shell parentShell;
-	private Map<String, String> cfNameInfo;
+	private CfFileInfo cfFileInfo;
+	private SupportMode supportMode = SupportMode.DEFAULT;
 
 	private Label projectNameExistsLabel;
+	private Combo supportModeList;
 
 	public void setInitialProperties(String projectName, java.util.List<Version> supportedVersion) {
 		this.projectName = projectName;
@@ -48,12 +50,16 @@ public class ImportDialog extends Dialog {
 		return projectVersion;
 	}
 
-	public Map<String, String> getProjectSelectedCfNameInfo() {
-		return cfNameInfo;
+	public CfFileInfo getProjectSelectedCfNameInfo() {
+		return cfFileInfo;
 	}
 
 	public String getNewProjectName() {
 		return projectName;
+	}
+
+	public SupportMode getSupportMode() {
+		return supportMode;
 	}
 
 	/**
@@ -78,7 +84,7 @@ public class ImportDialog extends Dialog {
 
 		Composite composite = new Composite(container, SWT.NONE);
 		composite.setBackground(getColor(SWT.COLOR_WIDGET_HIGHLIGHT_SHADOW));
-		composite.setBounds(0, 0, 444, 64);
+		composite.setBounds(0, 0, 474, 81);
 
 		Label lblNewLabel = new Label(composite, SWT.NONE);
 		lblNewLabel.setFont(getFont("Segoe UI", 12, SWT.BOLD));
@@ -90,13 +96,20 @@ public class ImportDialog extends Dialog {
 
 		Label lblCf = new Label(composite, SWT.NONE);
 		lblCf.setTouchEnabled(true);
-		lblCf.setText(Messages.Actions_Set_CF_Location);
+		lblCf.setText(Messages.Dialog_SetNewProjectProperties);
 		lblCf.setFont(getFont("Segoe UI", 10, SWT.NORMAL));
 		lblCf.setBackground(getColor(SWT.COLOR_WIDGET_HIGHLIGHT_SHADOW));
-		lblCf.setBounds(20, 34, 402, 17);
+		lblCf.setBounds(20, 34, 262, 17);
+
+		projectNameExistsLabel = new Label(composite, SWT.NONE);
+		projectNameExistsLabel.setBounds(30, 57, 262, 15);
+		projectNameExistsLabel.setForeground(getColor(SWT.COLOR_RED));
+		projectNameExistsLabel.setText(Messages.Dialog_ProjectExists);
+		projectNameExistsLabel.setVisible(false);
+		projectNameExistsLabel.setBackground(getColor(SWT.COLOR_WIDGET_HIGHLIGHT_SHADOW));
 
 		Label projectNameLabel = new Label(container, SWT.NONE);
-		projectNameLabel.setBounds(10, 79, 73, 15);
+		projectNameLabel.setBounds(10, 99, 73, 15);
 		projectNameLabel.setText(Messages.Dialog_ProjectName);
 
 		projectNameTextBox = new Text(container, SWT.BORDER);
@@ -114,20 +127,14 @@ public class ImportDialog extends Dialog {
 				setButtonOKEnabled();
 			}
 		});
-		projectNameTextBox.setBounds(89, 76, 260, 23);
-
-		projectNameExistsLabel = new Label(container, SWT.NONE);
-		projectNameExistsLabel.setForeground(getColor(SWT.COLOR_RED));
-		projectNameExistsLabel.setBounds(355, 79, 69, 15);
-		projectNameExistsLabel.setText(Messages.Dialog_ProjectExists);
-		projectNameExistsLabel.setVisible(false);
+		projectNameTextBox.setBounds(89, 96, 360, 23);
 
 		Label projectVersionLabel = new Label(container, SWT.NONE);
-		projectVersionLabel.setBounds(10, 109, 73, 15);
+		projectVersionLabel.setBounds(10, 129, 73, 15);
 		projectVersionLabel.setText(Messages.Dialog_V8Version);
 
 		Combo projectVersionList = new Combo(container, SWT.READ_ONLY);
-		projectVersionList.setBounds(89, 106, 260, 23);
+		projectVersionList.setBounds(89, 126, 58, 23);
 
 		supportedVersion.forEach(version -> {
 			projectVersionList.add(version.toString());
@@ -141,36 +148,55 @@ public class ImportDialog extends Dialog {
 				setButtonOKEnabled();
 			}
 		});
+		
+		Label supportModeLabel = new Label(container, SWT.NONE);
+		supportModeLabel.setBounds(153, 129, 128, 15);
+		supportModeLabel.setText(Messages.Dialog_SupportlabelText);
+		
+		supportModeList = new Combo(container, SWT.READ_ONLY);
+		supportModeList.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				supportMode = (SupportMode) supportModeList.getData(supportModeList.getText());
+			}
+		});
+		supportModeList.setBounds(287, 125, 162, 23);
+		
+		supportModeList.add(Messages.Dialog_SupportModeDefault);
+		supportModeList.setData(Messages.Dialog_SupportModeDefault, SupportMode.DEFAULT);
+		supportModeList.add(Messages.Dialog_SupportModeDisable);
+		supportModeList.setData(Messages.Dialog_SupportModeDisable, SupportMode.DISABLESUPPORT);
+		supportModeList.select(0);
 
 		Label cfPathLabel = new Label(container, SWT.NONE);
-		cfPathLabel.setBounds(10, 140, 73, 15);
+		cfPathLabel.setBounds(10, 160, 73, 15);
 		cfPathLabel.setText(Messages.Dialog_CfPath);
 
 		cfPathTextBox = new Text(container, SWT.BORDER);
 		cfPathTextBox.addModifyListener(new ModifyListener() {
 			public void modifyText(ModifyEvent e) {
 				if (cfPathTextBox.getText().isEmpty()) {
-					cfNameInfo = null;
+					cfFileInfo = null;
 				}
 				setButtonOKEnabled();
 			}
 		});
-		cfPathTextBox.setBounds(89, 137, 260, 23);
+		cfPathTextBox.setBounds(89, 157, 286, 23);
 
 		Button selectCfButton = new Button(container, SWT.NONE);
 		selectCfButton.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				cfNameInfo = Actions.askCfLocationPath(parentShell, SWT.OPEN);
-				if (cfNameInfo == null) {
+				cfFileInfo = Actions.askCfLocationPath(parentShell, SWT.OPEN);
+				if (cfFileInfo == null) {
 					cfPathTextBox.clearSelection();
 				} else {
-					cfPathTextBox.setText(cfNameInfo.get("cfFullName"));
+					cfPathTextBox.setText(cfFileInfo.FULLNAME);
+					projectNameTextBox.setText(cfFileInfo.NAMEWITHOUTEXTENSION);
 				}
-				// setButtonOKEnabled();
 			}
 		});
-		selectCfButton.setBounds(356, 136, 68, 23);
+		selectCfButton.setBounds(381, 156, 68, 24);
 		selectCfButton.setText(Messages.Dialog_View);
 
 		return container;
@@ -194,11 +220,11 @@ public class ImportDialog extends Dialog {
 	 */
 	@Override
 	protected Point getInitialSize() {
-		return new Point(450, 250);
+		return new Point(480, 270);
 	}
 
 	private void setButtonOKEnabled() {
-		boolean enabled = !projectName.isEmpty() & !projectIsExists & projectVersion != null & cfNameInfo != null;
+		boolean enabled = !projectName.isEmpty() & !projectIsExists & projectVersion != null & cfFileInfo != null;
 		buttonOK.setEnabled(enabled);
 	}
 
