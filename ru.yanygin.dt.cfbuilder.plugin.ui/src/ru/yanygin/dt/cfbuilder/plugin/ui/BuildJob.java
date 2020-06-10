@@ -28,7 +28,7 @@ public class BuildJob extends Job {
 
 		Actions.runPlatformV8Command(V8CommandTypes.CREATEINFOBASE, projectContext, processResult, progressMonitor);
 		Actions.runPlatformV8Command(V8CommandTypes.LOADCONFIGFROMFILES, projectContext, processResult, progressMonitor);
-		Actions.runPlatformV8Command(V8CommandTypes.DUMPCONFIGTOCF, projectContext, processResult, progressMonitor);
+		Actions.runPlatformV8Command(V8CommandTypes.CREATEDISTRCF, projectContext, processResult, progressMonitor);
 
 		String buildResult;
 		String buildMessage;
