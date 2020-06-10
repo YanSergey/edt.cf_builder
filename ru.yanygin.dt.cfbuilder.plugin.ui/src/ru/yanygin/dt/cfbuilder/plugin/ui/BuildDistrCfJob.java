@@ -9,14 +9,14 @@ import org.eclipse.swt.widgets.Shell;
 
 import ru.yanygin.dt.cfbuilder.plugin.ui.PlatformV8Commands.V8CommandTypes;
 
-public class BuildJob extends Job {
+public class BuildDistrCfJob extends Job {
 
 	private ProcessResult processResult = new ProcessResult(Status.OK_STATUS);
 
 	private ProjectContext projectContext;
 	private Shell parentShell;
 
-	public BuildJob(ProjectContext projectContext, Shell parentShell) {
+	public BuildDistrCfJob(ProjectContext projectContext, Shell parentShell) {
 		super(MessageFormat.format(Messages.Task_BuildCfFromProject, projectContext.getProjectName()));
 
 		this.projectContext = projectContext;
@@ -28,7 +28,8 @@ public class BuildJob extends Job {
 
 		Actions.runPlatformV8Command(V8CommandTypes.CREATEINFOBASE, projectContext, processResult, progressMonitor);
 		Actions.runPlatformV8Command(V8CommandTypes.LOADCONFIGFROMFILES, projectContext, processResult, progressMonitor);
-		Actions.runPlatformV8Command(V8CommandTypes.DUMPCONFIGTOCF, projectContext, processResult, progressMonitor);
+		Actions.runPlatformV8Command(V8CommandTypes.UPDATEDBCONFIG, projectContext, processResult, progressMonitor);
+		Actions.runPlatformV8Command(V8CommandTypes.CREATEDISTRCF, projectContext, processResult, progressMonitor);
 
 		String buildResult;
 		String buildMessage;

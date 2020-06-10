@@ -8,6 +8,10 @@
             name="%command.BuildCf.name">
       </command>
       <command
+            id="ru.yanygin.dt.cfbuilder.plugin.ui.builddistrcf"
+            name="%command.BuildDistrCF.name">
+      </command>
+      <command
             id="ru.yanygin.dt.cfbuilder.plugin.ui.importcf"
             name="%command.ImportCf.name">
       </command>
@@ -17,6 +21,10 @@
       <handler
             class="ru.yanygin.dt.cfbuilder.plugin.ui.ExecutableExtensionFactory:ru.yanygin.dt.cfbuilder.plugin.ui.CfBuilderHandler"
             commandId="ru.yanygin.dt.cfbuilder.plugin.ui.buildcf">
+      </handler>
+      <handler
+            class="ru.yanygin.dt.cfbuilder.plugin.ui.ExecutableExtensionFactory:ru.yanygin.dt.cfbuilder.plugin.ui.DistrCfBuilderHandler"
+            commandId="ru.yanygin.dt.cfbuilder.plugin.ui.builddistrcf">
       </handler>
       <handler
             class="ru.yanygin.dt.cfbuilder.plugin.ui.ExecutableExtensionFactory:ru.yanygin.dt.cfbuilder.plugin.ui.CfImportHandler"
@@ -32,6 +40,33 @@
                commandId="ru.yanygin.dt.cfbuilder.plugin.ui.buildcf"
                icon="icons/cf16.png"
                label="%command.BuildCf.label"
+               style="push">
+            <visibleWhen
+                  checkEnabled="false">
+               <and>
+                  <with
+                        variable="selection">
+                     <count
+                           value="1">
+                     </count>
+                     <iterate
+                           operator="and">
+                        <instanceof
+                              value="org.eclipse.core.resources.IProject">
+                        </instanceof>
+                        <test
+                              property="org.eclipse.core.resources.projectNature"
+                              value="com._1c.g5.v8.dt.core.V8ConfigurationNature">
+                        </test>
+                     </iterate>
+                  </with>
+               </and>
+            </visibleWhen>
+         </command>
+         <command
+               commandId="ru.yanygin.dt.cfbuilder.plugin.ui.builddistrcf"
+               icon="icons/cf16.png"
+               label="%command.BuildDistrCF.label"
                style="push">
             <visibleWhen
                   checkEnabled="false">
