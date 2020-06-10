@@ -20,6 +20,7 @@ class Messages extends NLS {
 	public static String Actions_Dump_ConfigToXml;
 	public static String Actions_Load_ConfigFromCf;
 	public static String Actions_Dump_ConfigToCf;
+	public static String Actions_Update_DB_Config;
 	public static String Actions_Create_DistrCf;
 	public static String Actions_Import_ProjectFromXml;
 	public static String Actions_ClearingTemp;
