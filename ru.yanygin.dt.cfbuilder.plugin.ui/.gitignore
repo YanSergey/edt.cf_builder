@@ -1,2 +1,20 @@
 /bin/
 /Build/
+/target/
+/.scannerwork/
+/Run Sonar*.bat
+#Eclipse project files
+.metadata/
+.metricsapp/
+.metricsapp-tests/
+.JETEmitters/
+.settings
+#Build targets
+bin/
+target/
+.m2
+#Report directories
+/reports
+*/reports
+#Mac-specific directory that no other operating system needs.
+.DS_Store
