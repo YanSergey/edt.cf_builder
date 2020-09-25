@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<site>
+   <feature id="ru.yanygin.dt.cfbuilder.plugin.ui.feature">
+      <category name="ru.yanygin.dt.cfbuilder.plugin.ui.category"/>
+   </feature>
+   <category-def name="ru.yanygin.dt.cfbuilder.plugin.ui.category" label="EDT CF builder"/>
+</site>
