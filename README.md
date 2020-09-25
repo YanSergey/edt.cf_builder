@@ -58,7 +58,7 @@
 3. Выполнить команду mvn clean verify -P,find-bugs -Dtycho.localArtifacts=ignore
 
 ### Установка:
-1. Скачать zip файл со страницы релизов [![Download](https://img.shields.io/github/release/YanSergey/edt.cf_builder?label=download&style=flat)](https://github.com/ILazutin/edt.cf_builder/releases/latest)
+1. Скачать zip файл со страницы релизов [![Download](https://img.shields.io/github/release/Ilazutin/edt.cf_builder?label=download&style=flat)](https://github.com/ILazutin/edt.cf_builder/releases/latest)
 
 2. В EDT выбрать пункт меню "***Справка - Установить новое ПО***".
 
