@@ -116,7 +116,7 @@ public class Actions {
 		if (!checkBuildState(projectContext, v8command.get("actionMessage"), buildMonitor, processResult))
 			return;
 
-		if (commandType == V8CommandTypes.DUMPCONFIGTOCF) {
+		if ((commandType == V8CommandTypes.DUMPCONFIGTOCF) || (commandType == V8CommandTypes.CREATEDISTRCF)) {
 			File buildDir = new File(projectContext.getCfFileInfo().LOCATION);
 			if (!buildDir.exists()) {
 				buildDir.mkdir();
