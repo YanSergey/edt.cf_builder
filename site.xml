@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<site>
+
+   <description url="https://yansergey.github.io/edt.cf_builder">
+      EDT CF-builder Plugin Update Site
+   </description>
+
+   <feature url="features/ru.yanygin.dt.cfbuilder.plugin.ui.feature_1.2.0.202010131307.jar"
+            id="ru.yanygin.dt.cfbuilder.plugin"
+            version="1.2.0.202010131307">
+      <category name="EDT_CF_builder_Plugin"/>
+   </feature>
+
+   <category-def name="EDT_CF_builder_Plugin" label="EDT CF-builder Plugin">
+      <description>
+         EDT CF-builder Plugin
+      </description>
+   </category-def>
+
+</site>
