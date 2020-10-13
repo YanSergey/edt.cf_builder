@@ -226,10 +226,10 @@ public class JobDialog extends Dialog {
 	private void addHeaderContainer(Composite container) {
 		Composite composite = new Composite(container, SWT.NONE);
 		composite.setBackground(getColor(SWT.COLOR_WIDGET_HIGHLIGHT_SHADOW));
-		composite.setBounds(0, 0, 474, 81);
+		composite.setBounds(0, 0, 534, 81);
 		
 		Label lblHeader = new Label(composite, SWT.NONE);
-		lblHeader.setFont(getFont("Segoe UI", 12, SWT.BOLD));
+		lblHeader.setFont(getFont("Arial", 14, SWT.BOLD));
 		lblHeader.setLocation(10, 10);
 		lblHeader.setSize(424, 28);
 		lblHeader.setTouchEnabled(true);
@@ -237,11 +237,12 @@ public class JobDialog extends Dialog {
 		
 		Label lblSubHeader = new Label(composite, SWT.NONE);
 		lblSubHeader.setTouchEnabled(true);
-		lblSubHeader.setFont(getFont("Segoe UI", 10, SWT.NORMAL));
+		lblSubHeader.setFont(getFont("Arial", 12, SWT.NORMAL));
 		lblSubHeader.setBackground(getColor(SWT.COLOR_WIDGET_HIGHLIGHT_SHADOW));
 		lblSubHeader.setBounds(30, 34, 262, 17);
 		
 		projectExistsInfoLabel = new Label(composite, SWT.NONE);
+		projectExistsInfoLabel.setFont(getFont("Arial", 10, SWT.NORMAL));
 		projectExistsInfoLabel.setBounds(30, 57, 415, 15);
 		projectExistsInfoLabel.setForeground(getColor(SWT.COLOR_RED));
 		projectExistsInfoLabel.setText(Messages.Dialog_ProjectExists);
@@ -262,7 +263,8 @@ public class JobDialog extends Dialog {
 	
 	private void addProjectsControl(Composite container) {
 		Label lblProject = new Label(container, SWT.NONE);
-		lblProject.setBounds(10, 99, 73, 15);
+		lblProject.setBounds(10, 99, 90, 15);
+		lblProject.setFont(getDefaultFont());
 		
 		int style = SWT.READ_ONLY;
 		if (dialogType == DialogType.IMPORT) {
@@ -270,7 +272,7 @@ public class JobDialog extends Dialog {
 		}
 		
 		comboProjectsList = new Combo(container, style);
-		comboProjectsList.setBounds(89, 96, 360, 23);
+		comboProjectsList.setBounds(106, 96, 407, 23);
 		if (dialogType == DialogType.IMPORT) {
 			comboProjectsList.setText(projectName);
 		}
@@ -286,14 +288,17 @@ public class JobDialog extends Dialog {
 	
 	private void addFileChoiceControl(Composite container) {
 		Label lblFilePath = new Label(container, SWT.NONE);
-		lblFilePath.setBounds(10, 129, 73, 15);
+		lblFilePath.setBounds(10, 144, 90, 15);
+		lblFilePath.setFont(getDefaultFont());
 		lblFilePath.setText(Messages.Dialog_CfPath);
 		
 		txtFilePath = new Text(container, SWT.BORDER);
-		txtFilePath.setBounds(89, 126, 286, 23);
+		txtFilePath.setBounds(106, 141, 334, 23);
+		txtFilePath.setFont(getDefaultFont());
 		
 		Button btnSelectCf = new Button(container, SWT.NONE);
-		btnSelectCf.setBounds(381, 125, 68, 24);
+		btnSelectCf.setBounds(446, 140, 67, 24);
+		btnSelectCf.setFont(getDefaultFont());
 		btnSelectCf.setText(Messages.Dialog_View);
 		btnSelectCf.addSelectionListener(new SelectionAdapter() {
 			@Override
@@ -309,13 +314,15 @@ public class JobDialog extends Dialog {
 	
 	private void addButtonUseTempIB(Composite container) {
 		btnUseTempIB = new Button(container, SWT.CHECK);
+		btnUseTempIB.setFont(getDefaultFont());
 		btnUseTempIB.setSelection(true);
-		btnUseTempIB.setBounds(10, 155, 235, 16);
+		btnUseTempIB.setBounds(10, 172, 310, 16);
 		btnUseTempIB.setText(Messages.Dialog_UseTempIB);
 		
 //		if (dialogType == DialogType.EXPORT) { //NOSONAR
 		btnCreateDistributionCffile = new Button(container, SWT.CHECK);
-		btnCreateDistributionCffile.setBounds(251, 155, 198, 16);
+		btnCreateDistributionCffile.setFont(getDefaultFont());
+		btnCreateDistributionCffile.setBounds(326, 172, 198, 16);
 		btnCreateDistributionCffile.setText(Messages.Dialog_CreateDistributionCffile);
 		btnCreateDistributionCffile.addSelectionListener(new SelectionAdapter() {
 			@Override
@@ -332,18 +339,21 @@ public class JobDialog extends Dialog {
 	
 	private void addInfobasesPropertiesContainer(Composite container) {
 		compositeInfoBases = new Composite(container, SWT.NONE);
-		compositeInfoBases.setBounds(10, 177, 439, 89);
+		compositeInfoBases.setBounds(10, 200, 503, 100);
 		
 		Label lblInfoBase = new Label(compositeInfoBases, SWT.NONE);
 		lblInfoBase.setAlignment(SWT.RIGHT);
-		lblInfoBase.setBounds(10, 5, 61, 15);
+		lblInfoBase.setFont(getDefaultFont());
+		lblInfoBase.setBounds(10, 5, 81, 15);
 		lblInfoBase.setText(Messages.Dialog_InfoBase);
 		
 		comboInfoBasesList = new Combo(compositeInfoBases, SWT.READ_ONLY);
-		comboInfoBasesList.setBounds(79, 0, 285, 23);
+		comboInfoBasesList.setFont(getDefaultFont());
+		comboInfoBasesList.setBounds(97, 1, 342, 24);
 		
 		Button btnSelectInfobase = new Button(compositeInfoBases, SWT.NONE);
-		btnSelectInfobase.setBounds(370, 0, 26, 25);
+		btnSelectInfobase.setBounds(445, 0, 26, 25);
+		btnSelectInfobase.setFont(getDefaultFont());
 		btnSelectInfobase.setText(Messages.Dialog_SelectInfobase);
 		btnSelectInfobase.addSelectionListener(new SelectionAdapter() {
 			@Override
@@ -396,15 +406,17 @@ public class JobDialog extends Dialog {
 		});
 		btnAddInfobase.setImage(ResourceManager.getPluginImage("com._1c.g5.v8.dt.platform.services.ui",
 				"/icons/etool16/infobase_new.png"));
-		btnAddInfobase.setBounds(402, 0, 26, 25);
+		btnAddInfobase.setBounds(477, 0, 26, 25);
 		
 		btnShowOnlyAssociatedIB = new Button(compositeInfoBases, SWT.CHECK);
-		btnShowOnlyAssociatedIB.setBounds(79, 26, 285, 16);
+		btnShowOnlyAssociatedIB.setFont(getDefaultFont());
+		btnShowOnlyAssociatedIB.setBounds(97, 30, 406, 16);
 		btnShowOnlyAssociatedIB.setSelection(true);
 		btnShowOnlyAssociatedIB.setText(Messages.Dialog_ShowOnlyAssociatedIB);
 		
 		btnAssociateAfterDeploy = new Button(compositeInfoBases, SWT.CHECK);
-		btnAssociateAfterDeploy.setBounds(79, 48, 285, 16);
+		btnAssociateAfterDeploy.setFont(getDefaultFont());
+		btnAssociateAfterDeploy.setBounds(97, 52, 406, 16);
 		btnAssociateAfterDeploy.setText(Messages.Dialog_AssociateAfterDeploy);
 		btnAssociateAfterDeploy.addSelectionListener(new SelectionAdapter() {
 			@Override
@@ -415,7 +427,8 @@ public class JobDialog extends Dialog {
 		
 //		if (dialogType == DialogType.EXPORT) { //NOSONAR
 		Button btnLoadFullConfiguration = new Button(compositeInfoBases, SWT.CHECK);
-		btnLoadFullConfiguration.setBounds(10, 70, 429, 16);
+		btnLoadFullConfiguration.setFont(getDefaultFont());
+		btnLoadFullConfiguration.setBounds(10, 74, 493, 16);
 		btnLoadFullConfiguration.setText(Messages.Dialog_LoadFullConfiguration);
 		btnLoadFullConfiguration.addSelectionListener(new SelectionAdapter() {
 			@Override
@@ -436,11 +449,13 @@ public class JobDialog extends Dialog {
 		
 		Label projectVersionLabel = new Label(container, SWT.NONE);
 		projectVersionLabel.setAlignment(SWT.RIGHT);
-		projectVersionLabel.setBounds(10, 270, 73, 15);
+		projectVersionLabel.setFont(getDefaultFont());
+		projectVersionLabel.setBounds(11, 309, 73, 15);
 		projectVersionLabel.setText(Messages.Dialog_V8Version);
 		
 		runtimeV8VersionList = new Combo(container, SWT.READ_ONLY);
-		runtimeV8VersionList.setBounds(89, 267, 58, 23);
+		runtimeV8VersionList.setFont(getDefaultFont());
+		runtimeV8VersionList.setBounds(100, 306, 90, 24);
 		
 		List<Version> supportedVersion = BaseProjectWorker.getRuntimeV8SupportedVersions();
 		
@@ -460,17 +475,19 @@ public class JobDialog extends Dialog {
 		
 		Label supportModeLabel = new Label(container, SWT.NONE);
 		supportModeLabel.setAlignment(SWT.RIGHT);
-		supportModeLabel.setBounds(153, 270, 128, 15);
+		supportModeLabel.setFont(getDefaultFont());
+		supportModeLabel.setBounds(202, 309, 137, 15);
 		supportModeLabel.setText(Messages.Dialog_SupportlabelText);
 		
 		supportModeList = new Combo(container, SWT.READ_ONLY);
+		supportModeList.setFont(getDefaultFont());
 		supportModeList.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				supportChangeMode = (SupportChangeMode) supportModeList.getData(supportModeList.getText());
 			}
 		});
-		supportModeList.setBounds(287, 267, 162, 23);
+		supportModeList.setBounds(345, 306, 168, 24);
 		
 		supportModeList.add(Messages.Dialog_SupportModeDefault);
 		supportModeList.setData(Messages.Dialog_SupportModeDefault, SupportChangeMode.DEFAULT);
@@ -485,7 +502,7 @@ public class JobDialog extends Dialog {
 		}
 		
 	}
-
+	
 	private void selectProjectFromProjectList() {
 		
 		if (dialogType == DialogType.IMPORT) {
@@ -551,7 +568,7 @@ public class JobDialog extends Dialog {
 			case IMPORT:
 				if (projectName.isBlank() || !projectRef.exists()) {
 					runtimeV8VersionList.setEnabled(true);
-					runtimeV8VersionList.select(runtimeV8VersionList.getItemCount()-1);
+					runtimeV8VersionList.select(runtimeV8VersionList.getItemCount() - 1);
 					break;
 				}
 				IProject project = projectRef;
@@ -937,15 +954,20 @@ public class JobDialog extends Dialog {
 	 */
 	@Override
 	protected Point getInitialSize() {
-		return new Point(480, 380);
+		return new Point(540, 420);
 	}
-
+	
 	public static Color getColor(int systemColorID) {
 		return Display.getCurrent().getSystemColor(systemColorID);
 	}
 	
 	public static Font getFont(String name, int size, int style) {
 		FontData fontData = new FontData(name, size, style);
+		return new Font(Display.getCurrent(), fontData);
+	}
+	
+	public static Font getDefaultFont() {
+		FontData fontData = new FontData("Arial", 10, SWT.NORMAL);
 		return new Font(Display.getCurrent(), fontData);
 	}
 	
