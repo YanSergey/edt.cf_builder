@@ -1,10 +1,12 @@
 package ru.yanygin.dt.cfbuilder.plugin.ui;
 
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.text.MessageFormat;
 import java.util.List;
 
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.ProjectScope;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -23,6 +25,7 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.preferences.ScopedPreferenceStore;
 import org.eclipse.ui.wizards.IWizardDescriptor;
 import com._1c.g5.v8.dt.export.IExportServiceRegistry;
 import com._1c.g5.v8.dt.platform.services.core.infobases.IInfobaseManager;
@@ -158,6 +161,7 @@ public class JobDialog extends Dialog {
 			public void modifyText(ModifyEvent e) {
 				
 				selectProjectFromProjectList();
+				setDefaultFilePath();
 				changeSelectedFileNameExtension();
 				setV8RuntimeCurrentVersion();
 				
@@ -852,7 +856,8 @@ public class JobDialog extends Dialog {
 		buttonOK.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent event) {
-				
+				saveDefaultFilePath();
+
 				ProjectInfo fileInfo = new ProjectInfo(selectedFileName, deployInTempIB, selectedInfobase,
 						associateAfterDeploy, createDistributionFile);
 				
@@ -904,6 +909,8 @@ public class JobDialog extends Dialog {
 		});
 		
 		createButton(parent, IDialogConstants.CANCEL_ID, IDialogConstants.CANCEL_LABEL, false);
+		
+		setDefaultFilePath();
 	}
 	
 	private void setButtonOKEnabled() {
@@ -971,4 +978,24 @@ public class JobDialog extends Dialog {
 		return new Font(Display.getCurrent(), fontData);
 	}
 	
+	public void setDefaultFilePath() {
+		ProjectScope projectScope = new ProjectScope(projectRef);
+		ScopedPreferenceStore store = new ScopedPreferenceStore(projectScope, Activator.PLUGIN_ID);
+		String defaultFilePath = store.getString(dialogType.toString().concat("DefaultFilePath"));
+		
+		if (!defaultFilePath.isBlank()){
+			this.txtFilePath.setText(defaultFilePath);
+		}
+	}
+	
+	public void saveDefaultFilePath() {
+		ProjectScope projectScope = new ProjectScope(projectRef);
+		ScopedPreferenceStore store = new ScopedPreferenceStore(projectScope, Activator.PLUGIN_ID);
+		store.setValue(dialogType.toString().concat("DefaultFilePath"), selectedFileName);
+		try {
+			store.save();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
 }

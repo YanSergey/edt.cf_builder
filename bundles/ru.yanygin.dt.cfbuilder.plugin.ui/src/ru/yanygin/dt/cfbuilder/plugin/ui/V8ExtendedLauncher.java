@@ -18,6 +18,7 @@ import com._1c.g5.v8.dt.platform.services.core.runtimes.execution.impl.AbstractR
 import com._1c.g5.v8.dt.platform.services.core.runtimes.execution.impl.RuntimeExecutionCommandBuilder;
 import com._1c.g5.v8.dt.platform.services.model.InfobaseAccess;
 import com._1c.g5.v8.dt.platform.services.model.InfobaseReference;
+import com._1c.g5.v8.dt.platform.services.model.RuntimeInstallation;
 import com.google.common.base.Strings;
 
 public class V8ExtendedLauncher extends AbstractRuntimeComponentExecutor {
@@ -35,7 +36,7 @@ public class V8ExtendedLauncher extends AbstractRuntimeComponentExecutor {
 		addAuthentication(command, arguments);
 		
 		closeDesignerSession(arguments, infobase);
-		return super.executeRuntimeProcessCommand(command, v8Launcher.first.getInstallation());
+		return super.executeRuntimeProcessCommand(command, v8Launcher.first.getInstallation(), infobase, arguments);
 		
 	}
 	
@@ -67,7 +68,7 @@ public class V8ExtendedLauncher extends AbstractRuntimeComponentExecutor {
 	}
 	
 	@Override
-	protected String readRuntimeLog(File logFile) throws IOException {
+	protected String readRuntimeLog(File logFile, RuntimeInstallation installation) throws IOException {
 		return readOutLogFile(logFile);
 	}
 	

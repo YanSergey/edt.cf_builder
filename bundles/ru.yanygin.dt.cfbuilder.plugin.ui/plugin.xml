@@ -106,7 +106,7 @@
             allPopups="false"
             locationURI="menu:file?endof=export">
          <command
-               commandId="ru.yanygin.dt.cfbuilder.plugin.ui.importcf"
+               commandId="ru.yanygin.dt.cfbuilder.plugin.ui.buildcf"
                icon="icons/cf16.png"
                label="%command.BuildCf.name"
                style="push">
