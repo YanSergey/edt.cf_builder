@@ -1,12 +1,10 @@
 package ru.yanygin.dt.cfbuilder.plugin.ui;
 
-import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.text.MessageFormat;
 import java.util.List;
 
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.ProjectScope;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -25,7 +23,6 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.preferences.ScopedPreferenceStore;
 import org.eclipse.ui.wizards.IWizardDescriptor;
 import com._1c.g5.v8.dt.export.IExportServiceRegistry;
 import com._1c.g5.v8.dt.platform.services.core.infobases.IInfobaseManager;
@@ -52,6 +49,7 @@ import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.wb.swt.ResourceManager;
+import org.osgi.service.prefs.Preferences;
 import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.DisposeEvent;
 
@@ -979,23 +977,20 @@ public class JobDialog extends Dialog {
 	}
 	
 	public void setDefaultFilePath() {
-		ProjectScope projectScope = new ProjectScope(projectRef);
-		ScopedPreferenceStore store = new ScopedPreferenceStore(projectScope, Activator.PLUGIN_ID);
-		String defaultFilePath = store.getString(dialogType.toString().concat("DefaultFilePath"));
 		
-		if (!defaultFilePath.isBlank()){
+		Preferences store = Activator.getDefault().getPreferenceStore(projectRef);
+		String defaultFilePath = store.get(dialogType.toString().concat("_DefaultFilePath"), "");
+		
+		if (!defaultFilePath.isBlank()) {
 			this.txtFilePath.setText(defaultFilePath);
 		}
+		
 	}
 	
 	public void saveDefaultFilePath() {
-		ProjectScope projectScope = new ProjectScope(projectRef);
-		ScopedPreferenceStore store = new ScopedPreferenceStore(projectScope, Activator.PLUGIN_ID);
-		store.setValue(dialogType.toString().concat("DefaultFilePath"), selectedFileName);
-		try {
-			store.save();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		
+		Preferences store = Activator.getDefault().getPreferenceStore(projectRef);
+		store.put(dialogType.toString().concat("_DefaultFilePath"), selectedFileName);
+		
 	}
 }
