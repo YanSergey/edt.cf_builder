@@ -207,8 +207,8 @@ public class ExportProjectWorker extends BaseProjectWorker {
 	
 	private void exportConfigurationToCfSimple(ProjectInfo destinationFile) throws RuntimeExecutionException {
 		
-		v8Launcher.second.exportConfigurationToCf(v8Launcher.first, projectInfo.getDeploymentInfobase(),
-				buildArguments(projectInfo.getDeploymentInfobase()), destinationFile.getPath());
+		v8Launcher.second.exportConfigurationToFile(v8Launcher.first, projectInfo.getDeploymentInfobase(),
+				buildArguments(projectInfo.getDeploymentInfobase()), null,  destinationFile.getPath());
 		
 	}
 	

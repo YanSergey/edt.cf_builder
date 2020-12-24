@@ -1,9 +1,12 @@
 package ru.yanygin.dt.cfbuilder.plugin.ui;
 
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
+import org.osgi.service.prefs.Preferences;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -85,5 +88,9 @@ public class Activator extends AbstractUIPlugin {
 	
 	public static void log(IStatus status) {
 		plugin.getLog().log(status);
+	}
+	
+	public Preferences getPreferenceStore(IProject project) {
+		return InstanceScope.INSTANCE.getNode(PLUGIN_ID).node(project.getName());
 	}
 }
