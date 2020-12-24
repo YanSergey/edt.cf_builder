@@ -978,6 +978,9 @@ public class JobDialog extends Dialog {
 	
 	public void setDefaultFilePath() {
 		
+		if (projectRef == null) {
+			return;
+		}
 		Preferences store = Activator.getDefault().getPreferenceStore(projectRef);
 		String defaultFilePath = store.get(dialogType.toString().concat("_DefaultFilePath"), "");
 		
