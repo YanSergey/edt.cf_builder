@@ -2,6 +2,7 @@ package ru.yanygin.dt.cfbuilder.plugin.ui;
 
 import java.nio.file.Path;
 import java.text.MessageFormat;
+
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -12,6 +13,7 @@ import com._1c.g5.v8.dt.export.ExportException;
 import com._1c.g5.v8.dt.export.IExportService;
 import com._1c.g5.v8.dt.export.IExportServiceRegistry;
 import com._1c.g5.v8.dt.export.IExportStrategy;
+import com._1c.g5.v8.dt.export.OrdinaryDirectoryBuilder;
 import com._1c.g5.v8.dt.metadata.mdclass.Configuration;
 import com._1c.g5.v8.dt.platform.services.core.runtimes.execution.ConfigurationFilesFormat;
 import com._1c.g5.v8.dt.platform.services.core.runtimes.execution.RuntimeExecutionArguments;
@@ -77,7 +79,7 @@ public class ExportProjectWorker extends BaseProjectWorker {
 		
 		Configuration configuration = getConfigurationProvider().getConfiguration(this.getProject());
 		
-		IStatus exportResult = exportService.work(configuration, temptXMLPath,
+		IStatus exportResult = exportService.work(configuration, OrdinaryDirectoryBuilder.create(temptXMLPath),
 				IExportStrategy.DEFAULT.exportExternalProperties(configuration),
 				IExportStrategy.DEFAULT.exportExternalProperties(configuration), monitor);
 		
@@ -208,14 +210,14 @@ public class ExportProjectWorker extends BaseProjectWorker {
 	private void exportConfigurationToCfSimple(ProjectInfo destinationFile) throws RuntimeExecutionException {
 		
 		v8Launcher.second.exportConfigurationToFile(v8Launcher.first, projectInfo.getDeploymentInfobase(),
-				buildArguments(projectInfo.getDeploymentInfobase()), null,  destinationFile.getPath());
+				buildArguments(projectInfo.getDeploymentInfobase()), null, destinationFile.getPath());
 		
 	}
 	
 	private void exportConfigurationToCfDistribution(ProjectInfo destinationFile)
 			throws RuntimeExecutionException, RuntimeVersionRequiredException {
 		
-		V8ExtendedCommandBuilder command = new V8ExtendedCommandBuilder(v8Launcher.first.getLaunchable(),
+		V8ExtendedCommandBuilder command = new V8ExtendedCommandBuilder(v8Launcher.first.getFile(),
 				ThickClientMode.DESIGNER);
 		command.forInfobase(projectInfo.getDeploymentInfobase(), true).dumpConfigurationToCfDistr(destinationFile.name);
 		
@@ -228,7 +230,7 @@ public class ExportProjectWorker extends BaseProjectWorker {
 	private void exportExtensionToCfe(ProjectInfo destinationFile, String extensionName)
 			throws RuntimeExecutionException, RuntimeVersionRequiredException {
 		
-		V8ExtendedCommandBuilder command = new V8ExtendedCommandBuilder(v8Launcher.first.getLaunchable(),
+		V8ExtendedCommandBuilder command = new V8ExtendedCommandBuilder(v8Launcher.first.getFile(),
 				ThickClientMode.DESIGNER);
 		command.forInfobase(projectInfo.getDeploymentInfobase(), true).dumpExtensionToCfe(destinationFile.name,
 				extensionName);
@@ -242,7 +244,7 @@ public class ExportProjectWorker extends BaseProjectWorker {
 	private void loadExtensionFromXml(Path sourceFolder, String extensionName)
 			throws RuntimeExecutionException, RuntimeVersionRequiredException {
 		
-		V8ExtendedCommandBuilder command = new V8ExtendedCommandBuilder(v8Launcher.first.getLaunchable(),
+		V8ExtendedCommandBuilder command = new V8ExtendedCommandBuilder(v8Launcher.first.getFile(),
 				ThickClientMode.DESIGNER);
 		command.forInfobase(projectInfo.getDeploymentInfobase(), true).loadExtensionFromXml(sourceFolder,
 				extensionName);
