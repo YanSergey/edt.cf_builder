@@ -5,9 +5,9 @@
       EDT CF-builder Plugin Update Site
    </description>
 
-   <feature url="features/ru.yanygin.dt.cfbuilder.plugin.ui.feature_1.3.1.202103040952.jar"
+   <feature url="features/ru.yanygin.dt.cfbuilder.plugin.ui.feature_1.3.2.v202107181745.jar"
             id="ru.yanygin.dt.cfbuilder.plugin"
-            version="1.3.1.202103040952">
+            version="1.3.2.v202107181745">
       <category name="EDT_CF_builder_Plugin"/>
    </feature>
 
