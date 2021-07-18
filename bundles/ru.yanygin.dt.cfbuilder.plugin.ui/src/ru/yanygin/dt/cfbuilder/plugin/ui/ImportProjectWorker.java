@@ -4,6 +4,7 @@ import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Path;
 import java.text.MessageFormat;
+
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -17,6 +18,7 @@ import com._1c.g5.v8.dt.import_.IImportOperation;
 import com._1c.g5.v8.dt.import_.IImportOperationFactory;
 import com._1c.g5.v8.dt.platform.services.core.infobases.sync.InfobaseSynchronizationException;
 import com._1c.g5.v8.dt.platform.services.core.runtimes.execution.ConfigurationFilesFormat;
+import com._1c.g5.v8.dt.platform.services.core.runtimes.execution.ConfigurationFilesKind;
 import com._1c.g5.v8.dt.platform.services.core.runtimes.execution.RuntimeExecutionArguments;
 import com._1c.g5.v8.dt.platform.services.core.runtimes.execution.RuntimeExecutionException;
 import com._1c.g5.v8.dt.platform.services.core.runtimes.execution.RuntimeVersionRequiredException;
@@ -125,7 +127,7 @@ public class ImportProjectWorker extends BaseProjectWorker {
 		}
 		
 		InfobaseUpdateDialogBasedCallback updateCallback = new InfobaseUpdateDialogBasedCallback(parentShell,
-				getV8projectManager(), getCompareEditorInputFactory());
+				getV8projectManager(), getCompareEditorInputFactory(), getComparisonManager());
 		updateCallback.setAllowOverrideConflict(false);
 		
 		try {
@@ -176,7 +178,7 @@ public class ImportProjectWorker extends BaseProjectWorker {
 	private void importExtensionFromCfe(ProjectInfo sourceFile)
 			throws RuntimeExecutionException, RuntimeVersionRequiredException {
 		
-		V8ExtendedCommandBuilder command = new V8ExtendedCommandBuilder(v8Launcher.first.getLaunchable(),
+		V8ExtendedCommandBuilder command = new V8ExtendedCommandBuilder(v8Launcher.first.getFile(),
 				ThickClientMode.DESIGNER);
 		command.forInfobase(projectInfo.getDeploymentInfobase(), true).loadExtensionFromCfe(sourceFile.name, extName);
 		
@@ -215,7 +217,7 @@ public class ImportProjectWorker extends BaseProjectWorker {
 		RuntimeExecutionArguments arguments = new RuntimeExecutionArguments();
 		
 		v8Launcher.second.exportConfigurationToXml(v8Launcher.first, projectInfo.getDeploymentInfobase(),
-				ConfigurationFilesFormat.HIERARCHICAL, arguments, temptXMLPath);
+				ConfigurationFilesFormat.HIERARCHICAL, ConfigurationFilesKind.PLAIN_FILES, arguments, temptXMLPath);
 		
 		changeSupportMode(temptXMLPath);
 		
@@ -223,7 +225,7 @@ public class ImportProjectWorker extends BaseProjectWorker {
 	
 	private void exportExtensionToXml() throws RuntimeExecutionException, RuntimeVersionRequiredException {
 		
-		V8ExtendedCommandBuilder command = new V8ExtendedCommandBuilder(v8Launcher.first.getLaunchable(),
+		V8ExtendedCommandBuilder command = new V8ExtendedCommandBuilder(v8Launcher.first.getFile(),
 				ThickClientMode.DESIGNER);
 		command.forInfobase(projectInfo.getDeploymentInfobase(), true).dumpExtensionToXml(temptXMLPath, projectName);
 		

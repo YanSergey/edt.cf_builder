@@ -23,6 +23,7 @@ import org.eclipse.swt.widgets.Shell;
 
 import com._1c.g5.v8.dt.common.FileUtil;
 import com._1c.g5.v8.dt.common.Pair;
+import com._1c.g5.v8.dt.compare.core.IComparisonManager;
 import com._1c.g5.v8.dt.compare.ui.editor.IDtComparisonEditorInputFactory;
 import com._1c.g5.v8.dt.core.platform.IConfigurationProvider;
 import com._1c.g5.v8.dt.core.platform.IDependentProject;
@@ -370,7 +371,7 @@ public abstract class BaseProjectWorker {
 		
 		try {
 			InfobaseUpdateDialogBasedCallback confirm = new InfobaseUpdateDialogBasedCallback(parentShell,
-					v8projectManager, compareEditorInputFactory);
+					v8projectManager, compareEditorInputFactory, getComparisonManager());
 			confirm.setAllowOverrideConflict(true);
 			
 			boolean progressIsOk = true;
@@ -569,6 +570,14 @@ public abstract class BaseProjectWorker {
 		return compareEditorInputFactory;
 	}
 	
+	protected IComparisonManager getComparisonManager() {
+		ServiceSupplier<IComparisonManager> comparisonManagerSupplier = ServiceAccess.supplier(IComparisonManager.class,
+				Activator.getDefault());
+		IComparisonManager compareEditorInputFactory = comparisonManagerSupplier.get();
+		comparisonManagerSupplier.close();
+		return compareEditorInputFactory;
+	}
+
 	protected IImportOperationFactory getImportOperationFactory() {
 		ServiceSupplier<IImportOperationFactory> importOperationFactorySupplier = ServiceAccess
 				.supplier(IImportOperationFactory.class, Activator.getDefault());
