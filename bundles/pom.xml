@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>ru.yanygin.dt.cfbuilder.plugin</groupId>
   <artifactId>ru.yanygin.dt.cfbuilder.plugin</artifactId>
-  <version>1.3.3-SNAPSHOT</version>
+  <version>1.3.4-SNAPSHOT</version>
   <name>1C:EDT CF builder</name>
   <prerequisites>
     <maven>3.6.0</maven>
@@ -45,7 +45,7 @@
               <artifact>
                 <groupId>ru.yanygin.dt.cfbuilder.plugin.target</groupId>
                 <artifactId>default</artifactId>
-                <version>1.3.3-SNAPSHOT</version>
+                <version>1.3.4-SNAPSHOT</version>
               </artifact>
             </target>
             <dependency-resolution>
