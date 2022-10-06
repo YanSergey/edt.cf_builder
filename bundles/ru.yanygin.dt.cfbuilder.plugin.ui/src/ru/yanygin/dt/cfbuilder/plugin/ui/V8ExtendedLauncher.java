@@ -14,6 +14,7 @@ import com._1c.g5.v8.dt.platform.services.core.runtimes.execution.IThickClientLa
 import com._1c.g5.v8.dt.platform.services.core.runtimes.execution.RuntimeExecutionArguments;
 import com._1c.g5.v8.dt.platform.services.core.runtimes.execution.RuntimeExecutionException;
 import com._1c.g5.v8.dt.platform.services.core.runtimes.execution.RuntimeVersionRequiredException;
+import com._1c.g5.v8.dt.platform.services.core.runtimes.execution.impl.AbstractExecutionCommandBuilder;
 import com._1c.g5.v8.dt.platform.services.core.runtimes.execution.impl.AbstractRuntimeComponentExecutor;
 import com._1c.g5.v8.dt.platform.services.core.runtimes.execution.impl.RuntimeExecutionCommandBuilder;
 import com._1c.g5.v8.dt.platform.services.model.InfobaseAccess;
@@ -36,7 +37,7 @@ public class V8ExtendedLauncher extends AbstractRuntimeComponentExecutor {
 		addAuthentication(command, arguments);
 		
 		closeDesignerSession(arguments, infobase);
-		return super.executeRuntimeProcessCommand(command, v8Launcher.first.getInstallation(), infobase, arguments);
+		return this.executeRuntimeProcessCommand(command, v8Launcher.first.getInstallation(), infobase, arguments);
 		
 	}
 	
@@ -86,4 +87,14 @@ public class V8ExtendedLauncher extends AbstractRuntimeComponentExecutor {
 		
 		return contents;
 	}
+	
+    @Override
+    protected <T extends AbstractExecutionCommandBuilder<T>> void appendAdditionalParameters(T commandBuilder,
+        InfobaseReference infobase) {
+        if (infobase != null) {
+            String additionalParameters = infobase.getAdditionalParameters();
+            commandBuilder.additionalParameters(additionalParameters);
+        }
+    }
+
 }
