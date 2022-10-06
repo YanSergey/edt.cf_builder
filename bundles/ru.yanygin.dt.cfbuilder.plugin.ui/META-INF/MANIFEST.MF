@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: %pluginName
 Bundle-SymbolicName: ru.yanygin.dt.cfbuilder.plugin.ui;singleton:=true
-Bundle-Version: 1.3.3.qualifier
+Bundle-Version: 1.3.4.qualifier
 Bundle-Activator: ru.yanygin.dt.cfbuilder.plugin.ui.Activator
 Bundle-Vendor: %providerName
 Require-Bundle: org.eclipse.ui,
@@ -15,11 +15,11 @@ Require-Bundle: org.eclipse.ui,
  com._1c.g5.v8.dt.export;bundle-version="[7.0.0,8.0.0)",
  com._1c.g5.v8.dt.import;bundle-version="[7.2.200,8.0.0)",
  com._1c.g5.v8.dt.import.xml;bundle-version="[11.0.0,12.0.0)",
- com._1c.g5.v8.dt.metadata;bundle-version="[12.2.0,14.0.0)",
- com._1c.g5.v8.dt.metadata.extension;bundle-version="[1.7.0,2.0.0)",
- com._1c.g5.v8.dt.core;bundle-version="[18.0.0,19.0.0)",
+ com._1c.g5.v8.dt.metadata;bundle-version="[14.0.0,15.0.0)",
+ com._1c.g5.v8.dt.metadata.extension;bundle-version="[2.0.0,3.0.0)",
+ com._1c.g5.v8.dt.core;bundle-version="[19.0.0,20.0.0)",
  com._1c.g5.wiring;bundle-version="[2.3.0,3.0.0)",
- com._1c.g5.v8.dt.compare;bundle-version="[20.0.0,21.0.0)",
+ com._1c.g5.v8.dt.compare;bundle-version="[21.0.0,22.0.0)",
  com._1c.g5.v8.dt.compare.ui;bundle-version="[19.0.0,20.0.0)",
  com._1c.g5.v8.dt.common;bundle-version="[8.1.0,9.0.0)",
  com._1c.g5.designer.ssh.client;bundle-version="[0.3.0,1.0.0)",
