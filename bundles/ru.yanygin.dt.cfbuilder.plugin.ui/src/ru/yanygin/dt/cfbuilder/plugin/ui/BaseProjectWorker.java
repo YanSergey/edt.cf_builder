@@ -23,7 +23,6 @@ import org.eclipse.swt.widgets.Shell;
 
 import com._1c.g5.ides.monitoring.IMonitoringEventDispatcher;
 import com._1c.g5.v8.dt.common.FileUtil;
-import com._1c.g5.v8.dt.common.Pair;
 import com._1c.g5.v8.dt.compare.core.IComparisonManager;
 import com._1c.g5.v8.dt.compare.ui.editor.IDtComparisonEditorInputFactory;
 import com._1c.g5.v8.dt.core.filesystem.IQualifiedNameFilePathConverter;
@@ -48,16 +47,18 @@ import com._1c.g5.v8.dt.platform.services.core.runtimes.RuntimeInstallations;
 import com._1c.g5.v8.dt.platform.services.core.runtimes.environments.IResolvableRuntimeInstallation;
 import com._1c.g5.v8.dt.platform.services.core.runtimes.environments.IResolvableRuntimeInstallationManager;
 import com._1c.g5.v8.dt.platform.services.core.runtimes.environments.MatchingRuntimeNotFound;
+import com._1c.g5.v8.dt.platform.services.core.runtimes.execution.ComponentExecutorInfo;
+import com._1c.g5.v8.dt.platform.services.core.runtimes.execution.IDesignerSessionThickClientLauncher;
 import com._1c.g5.v8.dt.platform.services.core.runtimes.execution.ILaunchableRuntimeComponent;
 import com._1c.g5.v8.dt.platform.services.core.runtimes.execution.IRuntimeComponentManager;
 import com._1c.g5.v8.dt.platform.services.core.runtimes.execution.IRuntimeComponentTypes;
-import com._1c.g5.v8.dt.platform.services.core.runtimes.execution.IThickClientLauncher;
 import com._1c.g5.v8.dt.platform.services.core.runtimes.execution.RuntimeExecutionArguments;
 import com._1c.g5.v8.dt.platform.services.core.runtimes.execution.RuntimeExecutionException;
 import com._1c.g5.v8.dt.platform.services.model.CreateInfobaseArguments;
 import com._1c.g5.v8.dt.platform.services.model.InfobaseReference;
 import com._1c.g5.v8.dt.platform.services.model.InfobaseType;
 import com._1c.g5.v8.dt.platform.services.model.ModelFactory;
+import com._1c.g5.v8.dt.platform.services.model.RuntimeInstallation;
 import com._1c.g5.v8.dt.platform.services.model.Section;
 import com._1c.g5.v8.dt.platform.services.ui.infobases.sync.InfobaseUpdateDialogBasedCallback;
 import com._1c.g5.v8.dt.platform.version.IRuntimeVersionSupport;
@@ -103,7 +104,7 @@ public abstract class BaseProjectWorker {
 		return projectV8version;
 	}
 
-	protected Pair<ILaunchableRuntimeComponent, IThickClientLauncher> v8Launcher;
+    protected ComponentExecutorInfo<ILaunchableRuntimeComponent, IDesignerSessionThickClientLauncher> v8Launcher;
 	protected IStatus jobStatus = Status.OK_STATUS;
 
 	public BaseProjectWorker(Shell parentShell, ProjectInfo projectInfo, String projectName) {
@@ -135,19 +136,27 @@ public abstract class BaseProjectWorker {
 
 	protected void createThickClientLauncher() {
 
-		IRuntimeComponentManager runtimeComponentManager = getRuntimeComponentManager();
+        IRuntimeComponentManager runtimeComponentManager = getRuntimeComponentManager(); // ? не нужно
 
 		IResolvableRuntimeInstallationManager resolvableRuntimeInstallationManager = getResolvableRuntimeInstallationManager();
 
 		IResolvableRuntimeInstallation resolvableRuntimeInstallation = resolvableRuntimeInstallationManager
-				.getDefault(RuntimeInstallations.ENTERPRISE_PLATFORM, getProjectV8Version().toString());
+            .resolveByVersionOrMask(RuntimeInstallations.ENTERPRISE_PLATFORM, getProjectV8Version().toString());
+
+        RuntimeInstallation installation = resolvableRuntimeInstallation
+            .resolve(List.of(IRuntimeComponentTypes.THICK_CLIENT), projectInfo.getDeploymentInfobase().getAppArch());
 
 		try {
-			v8Launcher = runtimeComponentManager.getComponentAndExecutor(
-					resolvableRuntimeInstallation.get(IRuntimeComponentTypes.THICK_CLIENT),
-					IRuntimeComponentTypes.THICK_CLIENT);
+//			v8Launcher = runtimeComponentManager.getComponentAndExecutor(
+//					resolvableRuntimeInstallation.get(IRuntimeComponentTypes.THICK_CLIENT),
+//					IRuntimeComponentTypes.THICK_CLIENT);
 
-		} catch (MatchingRuntimeNotFound e) {
+//            v8Launcher = runtimeComponentManager.getComponent(
+
+            v8Launcher = getRuntimeComponentManager().resolveExecutor(ILaunchableRuntimeComponent.class,
+                IDesignerSessionThickClientLauncher.class, installation, IRuntimeComponentTypes.THICK_CLIENT);
+
+		} catch (MatchingRuntimeNotFound | RuntimeExecutionException e) {
 			jobStatus = Activator.createErrorStatus(e);
 			Activator.log(jobStatus);
 		}
@@ -172,7 +181,7 @@ public abstract class BaseProjectWorker {
 		IInfobaseAccessManager infobaseAccessManager = getInfobaseAccessManager();
 
 		try {
-			IInfobaseAccessSettings settings = infobaseAccessManager.getSettings(infobase);
+            IInfobaseAccessSettings settings = infobaseAccessManager.resolveSettings(infobase);
 
 			arguments.setAccess(settings.access());
 			arguments.setUsername(settings.userName());
@@ -207,8 +216,8 @@ public abstract class BaseProjectWorker {
 		deploymentInfobase.setName("TempIB-".concat(baseUUID.toString()));
 
 		try {
-			v8Launcher.second.createInfobase(v8Launcher.first, deploymentInfobase, args, false);// false = не
-																								// регистрировать базу
+            v8Launcher.getExecutor().createInfobase(v8Launcher.getComponent(), deploymentInfobase, args, false);
+            // false = не регистрировать базу
 		} catch (RuntimeExecutionException e) {
 			jobStatus = Activator.createErrorStatus(e);
 			Activator.log(jobStatus);
@@ -345,7 +354,7 @@ public abstract class BaseProjectWorker {
 
 		} else {
 
-			List<Section> infoBasesSection = getInfobaseManager().getAll(true);
+            List<Section> infoBasesSection = getInfobaseManager().getAll();//true
 
 			infoBasesSection.forEach(ib -> {
 				if (ib instanceof InfobaseReference && ((InfobaseReference) ib).getInfobaseType() != InfobaseType.WEB)
@@ -378,7 +387,7 @@ public abstract class BaseProjectWorker {
 		try {
             InfobaseUpdateDialogBasedCallback confirm = new InfobaseUpdateDialogBasedCallback(parentShell,
                 v8projectManager, compareEditorInputFactory, getComparisonManager(), monitoringEventDispatcher,
-                workspaceOrchestrator, qualifiedNameFilePathConverter);
+                workspaceOrchestrator, qualifiedNameFilePathConverter, null);
 			confirm.setAllowOverrideConflict(true);
 
 			boolean progressIsOk = true;
@@ -410,7 +419,7 @@ public abstract class BaseProjectWorker {
 		IInfobaseAssociationContextProvider infobaseAssociationContextProvider = getInfobaseAssociationContextProvider();
 
 		infobaseAssociationManager.associate(project, infobase,
-				new InfobaseAssociationSettings(true, true, infobaseAssociationContextProvider.get(project)));
+            new InfobaseAssociationSettings(true, infobaseAssociationContextProvider.get(project)));
 	}
 
 	public static List<Version> getRuntimeV8SupportedVersions() {
