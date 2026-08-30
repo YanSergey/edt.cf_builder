@@ -5,27 +5,27 @@
   <version>1.3.6-SNAPSHOT</version>
   <name>1C:EDT CF builder</name>
   <prerequisites>
-    <maven>3.6.0</maven>
+    <maven>3.9.16</maven>
   </prerequisites>
 
   <properties>
     <name>1C:EDT CF builder</name>
-    <tycho.version>1.7.0</tycho.version>
-    <tycho.extras.version>1.7.0</tycho.extras.version>
+    <tycho.version>4.0.5</tycho.version>
+    <tycho.extras.version>4.0.5</tycho.extras.version>
     
-    <spotbugs.maven.plugin.version>3.1.12.2</spotbugs.maven.plugin.version>
+    <spotbugs.maven.plugin.version>4.8.3.1</spotbugs.maven.plugin.version>
     <checkstyle.version>8.5</checkstyle.version>
 
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-    <maven.compiler.source>11</maven.compiler.source>
-    <maven.compiler.target>11</maven.compiler.target>
-    <maven.compiler.release>11</maven.compiler.release>
+    <maven.compiler.source>17</maven.compiler.source>
+    <maven.compiler.target>17</maven.compiler.target>
+    <maven.compiler.release>17</maven.compiler.release>
 
     <maven.build.timestamp.format>'v'yyyyMMdd-HHmm</maven.build.timestamp.format>
     <qualifier>${maven.build.timestamp}</qualifier>
 
-    <eclipse.p2.latest>http://download.eclipse.org/releases/2020-06/</eclipse.p2.latest>
+    <eclipse.p2.latest>http://download.eclipse.org/releases/2022-03/</eclipse.p2.latest>
 
     <p2repo.archive.skip>false</p2repo.archive.skip>
   </properties>
@@ -39,7 +39,7 @@
           <version>${tycho.version}</version>
           <configuration>
             <resolver>p2</resolver>
-            <executionEnvironment>JavaSE-11</executionEnvironment>
+            <executionEnvironment>JavaSE-17</executionEnvironment>
             <includePackedArtifacts>false</includePackedArtifacts>
             <target>
               <artifact>
@@ -152,17 +152,6 @@
             <repositoryName>Repository</repositoryName>
             <finalName>${project.artifactId}</finalName>
             <skipArchive>{p2repo.archive.skip}</skipArchive>
-          </configuration>
-        </plugin>
-        <plugin>
-          <groupId>org.eclipse.tycho.extras</groupId>
-          <artifactId>tycho-source-feature-plugin</artifactId>
-          <version>${tycho.extras.version}</version>
-          <configuration>
-            <includeBinaryFeature>false</includeBinaryFeature>
-            <archive>
-              <addMavenDescriptor>false</addMavenDescriptor>
-            </archive>
           </configuration>
         </plugin>
         <plugin>
@@ -297,7 +286,7 @@
               <dependency>
                 <groupId>com.github.spotbugs</groupId>
                 <artifactId>spotbugs</artifactId>
-                <version>4.0.0-beta2</version>
+                <version>4.8.3</version>
               </dependency>
             </dependencies>
           </plugin>
