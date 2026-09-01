@@ -45,6 +45,11 @@
 <unit id="com._1c.g5.v8.dt.thirdparty.feature.group" version="0.0.0"/>
 </location>
 
+<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="slicer" includeSource="true" type="InstallableUnit">
+<repository location="https://edt.1c.ru/downloads/releases/ruby/2025.2/"/>
+<unit id="com._1c.g5.v8.dt.product.feature.feature.group" version="0.0.0"/>   
+</location>
+
 <!-- LIBS -->
 <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="slicer" includeSource="true" type="InstallableUnit">
 <unit id="org.mockito" version="0.0.0"/>

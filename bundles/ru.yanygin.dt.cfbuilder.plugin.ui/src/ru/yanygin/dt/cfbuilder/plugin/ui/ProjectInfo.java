@@ -4,6 +4,7 @@ import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import com._1c.g5.v8.dt.platform.services.model.AppArch;
 import com._1c.g5.v8.dt.platform.services.model.InfobaseReference;
 import com.google.common.io.Files;
 
@@ -52,6 +53,14 @@ public class ProjectInfo {
 	public boolean checkAndCreateParentDir() {
 		File parentDir = getParentDirPath().toFile();
 		return parentDir.exists() || parentDir.mkdir();
+	}
+	
+	public AppArch getAppArch() {
+		if (!useTempIB) {
+			deploymentInfobase.getAppArch();
+		}
+		
+		return null;
 	}
 	
 	protected enum ConfigurationFileType {

@@ -144,7 +144,7 @@ public abstract class BaseProjectWorker {
             .resolveByVersionOrMask(RuntimeInstallations.ENTERPRISE_PLATFORM, getProjectV8Version().toString());
 
         RuntimeInstallation installation = resolvableRuntimeInstallation
-            .resolve(List.of(IRuntimeComponentTypes.THICK_CLIENT), projectInfo.getDeploymentInfobase().getAppArch());
+            .resolve(List.of(IRuntimeComponentTypes.THICK_CLIENT), projectInfo.getAppArch());
 
 		try {
 //			v8Launcher = runtimeComponentManager.getComponentAndExecutor(
