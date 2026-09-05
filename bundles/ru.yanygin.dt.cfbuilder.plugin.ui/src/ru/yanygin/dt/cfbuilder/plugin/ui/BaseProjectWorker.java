@@ -43,6 +43,7 @@ import com._1c.g5.v8.dt.platform.services.core.infobases.InfobaseAssociationSett
 import com._1c.g5.v8.dt.platform.services.core.infobases.InfobaseReferences;
 import com._1c.g5.v8.dt.platform.services.core.infobases.sync.IInfobaseSynchronizationManager;
 import com._1c.g5.v8.dt.platform.services.core.infobases.sync.InfobaseSynchronizationException;
+import com._1c.g5.v8.dt.platform.services.core.infobases.sync.v2.IInfobaseSynchronizationStateManager;
 import com._1c.g5.v8.dt.platform.services.core.runtimes.RuntimeInstallations;
 import com._1c.g5.v8.dt.platform.services.core.runtimes.environments.IResolvableRuntimeInstallation;
 import com._1c.g5.v8.dt.platform.services.core.runtimes.environments.IResolvableRuntimeInstallationManager;
@@ -383,11 +384,13 @@ public abstract class BaseProjectWorker {
         IMonitoringEventDispatcher monitoringEventDispatcher = getMonitoringEventDispatcher();
         IWorkspaceOrchestrator workspaceOrchestrator = getWorkspaceOrchestrator();
         IQualifiedNameFilePathConverter qualifiedNameFilePathConverter = getQualifiedNameFilePathConverter();
-
+        IInfobaseSynchronizationStateManager infobaseSynchroStateManager = getInfobaseSynchronizationStateManager();
+        
 		try {
-            InfobaseUpdateDialogBasedCallback confirm = new InfobaseUpdateDialogBasedCallback(parentShell,
+
+			InfobaseUpdateDialogBasedCallback confirm = new InfobaseUpdateDialogBasedCallback(parentShell,
                 v8projectManager, compareEditorInputFactory, getComparisonManager(), monitoringEventDispatcher,
-                workspaceOrchestrator, qualifiedNameFilePathConverter, null);
+                workspaceOrchestrator, qualifiedNameFilePathConverter, infobaseSynchroStateManager);
 			confirm.setAllowOverrideConflict(true);
 
 			boolean progressIsOk = true;
@@ -544,6 +547,14 @@ public abstract class BaseProjectWorker {
 		IInfobaseSynchronizationManager infobaseSynchronizationManager = infobaseSynchronizationManagerSupplier.get();
 		infobaseSynchronizationManagerSupplier.close();
 		return infobaseSynchronizationManager;
+	}
+
+	protected IInfobaseSynchronizationStateManager getInfobaseSynchronizationStateManager() {
+		ServiceSupplier<IInfobaseSynchronizationStateManager> infobaseSynchronizationStateManagerSupplier = ServiceAccess
+				.supplier(IInfobaseSynchronizationStateManager.class, Activator.getDefault());
+		IInfobaseSynchronizationStateManager infobaseSynchronizationStateManager = infobaseSynchronizationStateManagerSupplier.get();
+		infobaseSynchronizationStateManagerSupplier.close();
+		return infobaseSynchronizationStateManager;
 	}
 
 	private IInfobaseAccessManager getInfobaseAccessManager() {

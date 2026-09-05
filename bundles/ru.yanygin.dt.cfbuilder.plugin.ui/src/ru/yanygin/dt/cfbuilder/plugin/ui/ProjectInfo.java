@@ -57,7 +57,7 @@ public class ProjectInfo {
 	
 	public AppArch getAppArch() {
 		if (!useTempIB) {
-			deploymentInfobase.getAppArch();
+			return deploymentInfobase.getAppArch();
 		}
 		
 		return null;
