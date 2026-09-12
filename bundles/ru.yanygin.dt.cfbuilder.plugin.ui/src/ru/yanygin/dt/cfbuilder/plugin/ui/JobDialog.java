@@ -694,14 +694,14 @@ public class JobDialog extends Dialog {
 		IInfobaseManager infobaseManager = BaseProjectWorker.getInfobaseManager();
 
         InfobaseSelectDialog ibSelectDialog =
-            new InfobaseSelectDialog(parentShell, infobaseManager, selectedInfobase, null, "message_text");
-		int isSelected = ibSelectDialog.open();
-        Optional<InfobaseReference> ibSelected = null;
+            new InfobaseSelectDialog(parentShell, infobaseManager, selectedInfobase, null, null);
+		ibSelectDialog.open();
+//        Optional<InfobaseReference> ibSelected = null;
+//
+//        if (isSelected == 0) // возможно эта проверка уже не нужна
+//            ibSelected = ibSelectDialog.getSelectedInfobase();
 
-        if (isSelected == 0) // возможно эта проверка уже не нужна
-            ibSelected = ibSelectDialog.getSelectedInfobase();
-
-		return ibSelected;
+		return ibSelectDialog.getSelectedInfobase();
 	}
 
 	private void enableInfobaseSubControl() {

@@ -17,6 +17,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.emf.common.util.EList;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Shell;
@@ -56,6 +57,7 @@ import com._1c.g5.v8.dt.platform.services.core.runtimes.execution.IRuntimeCompon
 import com._1c.g5.v8.dt.platform.services.core.runtimes.execution.RuntimeExecutionArguments;
 import com._1c.g5.v8.dt.platform.services.core.runtimes.execution.RuntimeExecutionException;
 import com._1c.g5.v8.dt.platform.services.model.CreateInfobaseArguments;
+import com._1c.g5.v8.dt.platform.services.model.Group;
 import com._1c.g5.v8.dt.platform.services.model.InfobaseReference;
 import com._1c.g5.v8.dt.platform.services.model.InfobaseType;
 import com._1c.g5.v8.dt.platform.services.model.ModelFactory;
@@ -357,14 +359,22 @@ public abstract class BaseProjectWorker {
 
             List<Section> infoBasesSection = getInfobaseManager().getAll();//true
 
-			infoBasesSection.forEach(ib -> {
-				if (ib instanceof InfobaseReference && ((InfobaseReference) ib).getInfobaseType() != InfobaseType.WEB)
-					infoBases.add((InfobaseReference) ib);
-			});
+			sortInfobases(infoBases, infoBasesSection);
 
 		}
 
 		return infoBases;
+	}
+
+	private static void sortInfobases(List<InfobaseReference> infoBases, List<Section> infoBasesSection) {
+		infoBasesSection.forEach(ib -> {
+			if (ib instanceof InfobaseReference && ((InfobaseReference) ib).getInfobaseType() != InfobaseType.WEB) {
+				infoBases.add((InfobaseReference) ib);
+			} else if (ib instanceof Group) {
+				EList<Section> ibGroup = ((Group) ib).getSubsections();
+				sortInfobases(infoBases, ibGroup);
+			}
+		});
 	}
 
 	protected void deployProjectToExistingInfobase(IProject deployProject, InfobaseReference infobase, boolean fullLoad,
