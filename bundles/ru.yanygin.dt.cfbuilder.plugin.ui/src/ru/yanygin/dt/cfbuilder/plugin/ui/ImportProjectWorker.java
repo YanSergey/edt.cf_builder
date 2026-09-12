@@ -20,6 +20,7 @@ import com._1c.g5.v8.dt.core.platform.IWorkspaceOrchestrator;
 import com._1c.g5.v8.dt.import_.IImportOperation;
 import com._1c.g5.v8.dt.import_.IImportOperationFactory;
 import com._1c.g5.v8.dt.platform.services.core.infobases.sync.InfobaseSynchronizationException;
+import com._1c.g5.v8.dt.platform.services.core.infobases.sync.v2.IInfobaseSynchronizationStateManager;
 import com._1c.g5.v8.dt.platform.services.core.runtimes.execution.ConfigurationFilesFormat;
 import com._1c.g5.v8.dt.platform.services.core.runtimes.execution.ConfigurationFilesKind;
 import com._1c.g5.v8.dt.platform.services.core.runtimes.execution.RuntimeExecutionArguments;
@@ -28,6 +29,8 @@ import com._1c.g5.v8.dt.platform.services.core.runtimes.execution.RuntimeVersion
 import com._1c.g5.v8.dt.platform.services.core.runtimes.execution.impl.RuntimeExecutionCommandBuilder.ThickClientMode;
 import com._1c.g5.v8.dt.platform.services.ui.infobases.sync.InfobaseUpdateDialogBasedCallback;
 import com._1c.g5.v8.dt.platform.version.Version;
+
+import ru.yanygin.dt.cfbuilder.plugin.ui.BaseProjectWorker.ProjectType;
 
 public class ImportProjectWorker extends BaseProjectWorker {
 
@@ -118,8 +121,16 @@ public class ImportProjectWorker extends BaseProjectWorker {
 	private void checkAssociateInfobaseToProject(IProgressMonitor monitor) {
 
 		IProject projectRef = getProjectReferenceFromWorkspace(projectName);
+		IProject parentProject = null;
 		if (projectRef.exists() && Boolean.TRUE.equals(projectInfo.linkIBToProject())) {
-			deployProjectToExistingInfobase(projectRef, projectInfo.getDeploymentInfobase(), true, true, monitor);
+			// Для проекта расширения ассоциировать с базой нужно базовый проект, т.е. проект конфигурации
+			if (projectType == ProjectType.EXTENSION ) {
+				parentProject = getParentProject(projectRef);
+			}
+			
+			IProject accosiatedProjectRef = parentProject == null ? projectRef : parentProject;
+
+			deployProjectToExistingInfobase(accosiatedProjectRef, projectInfo.getDeploymentInfobase(), true, true, monitor);
 		}
 
 	}
@@ -133,17 +144,16 @@ public class ImportProjectWorker extends BaseProjectWorker {
         IMonitoringEventDispatcher monitoringEventDispatcher = getMonitoringEventDispatcher();
         IWorkspaceOrchestrator workspaceOrchestrator = getWorkspaceOrchestrator();
         IQualifiedNameFilePathConverter qualifiedNameFilePathConverter = getQualifiedNameFilePathConverter();
+        IInfobaseSynchronizationStateManager infobaseSynchroStateManager = getInfobaseSynchronizationStateManager();
+
 
         InfobaseUpdateDialogBasedCallback updateCallback = new InfobaseUpdateDialogBasedCallback(parentShell,
             getV8projectManager(), getCompareEditorInputFactory(), getComparisonManager(), monitoringEventDispatcher,
-            workspaceOrchestrator, qualifiedNameFilePathConverter, null);
+            workspaceOrchestrator, qualifiedNameFilePathConverter, infobaseSynchroStateManager);
 		updateCallback.setAllowOverrideConflict(false);
 
 		try {
-//			getInfobaseSynchronizationManager().pullInfobaseChanges(getProjectReferenceFromWorkspace(projectName),
-//                projectInfo.getDeploymentInfobase(), updateCallback, true, monitor);
-
-            getInfobaseSynchronizationManager().updateInfobase(getProjectReferenceFromWorkspace(projectName),
+            getInfobaseSynchronizationManager().retrieveInfobaseChanges(getProjectReferenceFromWorkspace(projectName),
                 projectInfo.getDeploymentInfobase(), updateCallback, true, monitor);
 		} catch (InfobaseSynchronizationException e) {
 			jobStatus = Activator.createErrorStatus(e);

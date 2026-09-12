@@ -682,4 +682,15 @@ public abstract class BaseProjectWorker {
         return qualifiedNameFilePathConverter;
     }
 
+    protected static IProject getParentProject(IProject project)
+    {
+        IV8ProjectManager manager = ServiceAccess.get(IV8ProjectManager.class);
+        if (manager == null)
+            return null;
+
+        IV8Project v8Project = manager.getProject(project);
+        if (v8Project instanceof IDependentProject dependent)
+            return dependent.getParentProject();
+        return null;
+    }
 }
