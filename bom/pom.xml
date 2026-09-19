@@ -29,7 +29,7 @@
     <tycho.extras.version>4.0.5</tycho.extras.version>
     
     <spotbugs.maven.plugin.version>4.8.3.1</spotbugs.maven.plugin.version>
-    <checkstyle.version>8.5</checkstyle.version>
+    <checkstyle.version>8.29</checkstyle.version>
 
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
