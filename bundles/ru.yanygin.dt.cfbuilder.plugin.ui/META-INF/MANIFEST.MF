@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: %pluginName
 Bundle-SymbolicName: ru.yanygin.dt.cfbuilder.plugin.ui;singleton:=true
-Bundle-Version: 1.3.6.qualifier
+Bundle-Version: 1.3.7.qualifier
 Bundle-Activator: ru.yanygin.dt.cfbuilder.plugin.ui.Activator
 Bundle-Vendor: %providerName
 Require-Bundle: org.eclipse.xtext.ui;bundle-version="[2.0.0,3.0.0)",
