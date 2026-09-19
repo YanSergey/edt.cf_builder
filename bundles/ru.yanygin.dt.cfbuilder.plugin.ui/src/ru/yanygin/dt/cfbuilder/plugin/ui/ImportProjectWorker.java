@@ -20,6 +20,7 @@ import com._1c.g5.v8.dt.core.platform.IWorkspaceOrchestrator;
 import com._1c.g5.v8.dt.import_.IImportOperation;
 import com._1c.g5.v8.dt.import_.IImportOperationFactory;
 import com._1c.g5.v8.dt.platform.services.core.infobases.sync.InfobaseSynchronizationException;
+import com._1c.g5.v8.dt.platform.services.core.infobases.sync.v2.IInfobaseSynchronizationStateManager;
 import com._1c.g5.v8.dt.platform.services.core.runtimes.execution.ConfigurationFilesFormat;
 import com._1c.g5.v8.dt.platform.services.core.runtimes.execution.ConfigurationFilesKind;
 import com._1c.g5.v8.dt.platform.services.core.runtimes.execution.RuntimeExecutionArguments;
@@ -28,6 +29,8 @@ import com._1c.g5.v8.dt.platform.services.core.runtimes.execution.RuntimeVersion
 import com._1c.g5.v8.dt.platform.services.core.runtimes.execution.impl.RuntimeExecutionCommandBuilder.ThickClientMode;
 import com._1c.g5.v8.dt.platform.services.ui.infobases.sync.InfobaseUpdateDialogBasedCallback;
 import com._1c.g5.v8.dt.platform.version.Version;
+
+import ru.yanygin.dt.cfbuilder.plugin.ui.BaseProjectWorker.ProjectType;
 
 public class ImportProjectWorker extends BaseProjectWorker {
 
@@ -118,8 +121,16 @@ public class ImportProjectWorker extends BaseProjectWorker {
 	private void checkAssociateInfobaseToProject(IProgressMonitor monitor) {
 
 		IProject projectRef = getProjectReferenceFromWorkspace(projectName);
+		IProject parentProject = null;
 		if (projectRef.exists() && Boolean.TRUE.equals(projectInfo.linkIBToProject())) {
-			deployProjectToExistingInfobase(projectRef, projectInfo.getDeploymentInfobase(), true, true, monitor);
+			// Для проекта расширения ассоциировать с базой нужно базовый проект, т.е. проект конфигурации
+			if (projectType == ProjectType.EXTENSION ) {
+				parentProject = getParentProject(projectRef);
+			}
+			
+			IProject accosiatedProjectRef = parentProject == null ? projectRef : parentProject;
+
+			deployProjectToExistingInfobase(accosiatedProjectRef, projectInfo.getDeploymentInfobase(), true, true, monitor);
 		}
 
 	}
@@ -133,14 +144,16 @@ public class ImportProjectWorker extends BaseProjectWorker {
         IMonitoringEventDispatcher monitoringEventDispatcher = getMonitoringEventDispatcher();
         IWorkspaceOrchestrator workspaceOrchestrator = getWorkspaceOrchestrator();
         IQualifiedNameFilePathConverter qualifiedNameFilePathConverter = getQualifiedNameFilePathConverter();
+        IInfobaseSynchronizationStateManager infobaseSynchroStateManager = getInfobaseSynchronizationStateManager();
+
 
         InfobaseUpdateDialogBasedCallback updateCallback = new InfobaseUpdateDialogBasedCallback(parentShell,
             getV8projectManager(), getCompareEditorInputFactory(), getComparisonManager(), monitoringEventDispatcher,
-            workspaceOrchestrator, qualifiedNameFilePathConverter);
+            workspaceOrchestrator, qualifiedNameFilePathConverter, infobaseSynchroStateManager);
 		updateCallback.setAllowOverrideConflict(false);
 
 		try {
-			getInfobaseSynchronizationManager().pullInfobaseChanges(getProjectReferenceFromWorkspace(projectName),
+            getInfobaseSynchronizationManager().retrieveInfobaseChanges(getProjectReferenceFromWorkspace(projectName),
                 projectInfo.getDeploymentInfobase(), updateCallback, true, monitor);
 		} catch (InfobaseSynchronizationException e) {
 			jobStatus = Activator.createErrorStatus(e);
@@ -180,14 +193,19 @@ public class ImportProjectWorker extends BaseProjectWorker {
 	}
 
 	private void importConfigurationFromCf(ProjectInfo sourceFile) throws RuntimeExecutionException {
-		v8Launcher.second.importConfigurationFromCf(v8Launcher.first, projectInfo.getDeploymentInfobase(),
-				buildArguments(projectInfo.getDeploymentInfobase()), sourceFile.getPath());
+//		v8Launcher.second.importConfigurationFromCf(v8Launcher.first, projectInfo.getDeploymentInfobase(),
+//            buildArguments(projectInfo.getDeploymentInfobase()), sourceFile.getPath());
+
+        v8Launcher.getExecutor()
+            .importCfToInfobase(v8Launcher.getComponent(), projectInfo.getDeploymentInfobase(),
+            buildArguments(projectInfo.getDeploymentInfobase()), sourceFile.getPath());
+
 	}
 
 	private void importExtensionFromCfe(ProjectInfo sourceFile)
 			throws RuntimeExecutionException, RuntimeVersionRequiredException {
 
-		V8ExtendedCommandBuilder command = new V8ExtendedCommandBuilder(v8Launcher.first.getFile(),
+		V8ExtendedCommandBuilder command = new V8ExtendedCommandBuilder(v8Launcher.getComponent().getFile(),
 				ThickClientMode.DESIGNER);
 		command.forInfobase(projectInfo.getDeploymentInfobase(), true).loadExtensionFromCfe(sourceFile.name, extName);
 
@@ -225,8 +243,12 @@ public class ImportProjectWorker extends BaseProjectWorker {
 
 		RuntimeExecutionArguments arguments = new RuntimeExecutionArguments();
 
-		v8Launcher.second.exportConfigurationToXml(v8Launcher.first, projectInfo.getDeploymentInfobase(),
-				ConfigurationFilesFormat.HIERARCHICAL, ConfigurationFilesKind.PLAIN_FILES, arguments, temptXMLPath);
+//		v8Launcher.second.exportConfigurationToXml(v8Launcher.first, projectInfo.getDeploymentInfobase(),
+//				ConfigurationFilesFormat.HIERARCHICAL, ConfigurationFilesKind.PLAIN_FILES, arguments, temptXMLPath);
+
+        v8Launcher.getExecutor()
+            .exportFullXmlFromInfobase(v8Launcher.getComponent(), projectInfo.getDeploymentInfobase(),
+            ConfigurationFilesFormat.HIERARCHICAL, ConfigurationFilesKind.PLAIN_FILES, arguments, temptXMLPath);
 
 		changeSupportMode(temptXMLPath);
 
@@ -234,7 +256,8 @@ public class ImportProjectWorker extends BaseProjectWorker {
 
 	private void exportExtensionToXml() throws RuntimeExecutionException, RuntimeVersionRequiredException {
 
-		V8ExtendedCommandBuilder command = new V8ExtendedCommandBuilder(v8Launcher.first.getFile(),
+        V8ExtendedCommandBuilder command =
+            new V8ExtendedCommandBuilder(v8Launcher.getComponent().getFile(),
 				ThickClientMode.DESIGNER);
 		command.forInfobase(projectInfo.getDeploymentInfobase(), true).dumpExtensionToXml(temptXMLPath, projectName);
 
