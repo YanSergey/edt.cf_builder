@@ -403,7 +403,7 @@ public abstract class BaseProjectWorker {
                 workspaceOrchestrator, qualifiedNameFilePathConverter, infobaseSynchroStateManager);
 			confirm.setAllowOverrideConflict(true);
 
-			boolean progressIsOk = true;
+			IStatus progressIsOk = null;
 
 			if (fullLoad || linkIBToProject) {
 				progressIsOk = infobaseSynchroManager.reloadInfobase(deployProject, infobase, confirm, true, monitor);
@@ -411,12 +411,12 @@ public abstract class BaseProjectWorker {
 				progressIsOk = infobaseSynchroManager.updateInfobase(deployProject, infobase, confirm, true, monitor);
 			}
 			monitor.subTask("");
-			if (!progressIsOk || monitor.isCanceled()) {
+			if (progressIsOk != Status.OK_STATUS || monitor.isCanceled()) {
 				jobStatus = Activator.createCancelStatus(Messages.Status_OperationAbortByUser);
 				Activator.log(jobStatus);
 			}
 
-		} catch (UnsupportedVersionException | InfobaseSynchronizationException e) {
+		} catch (UnsupportedVersionException e) {
 			jobStatus = Activator.createErrorStatus(e);
 			Activator.log(jobStatus);
 		}

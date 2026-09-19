@@ -11,7 +11,7 @@
 <feature
       id="ru.yanygin.dt.cfbuilder.plugin.feature"
       label="%featureName"
-      version="1.3.6.qualifier"
+      version="1.3.7.qualifier"
       provider-name="%providerName"
       license-feature="org.eclipse.license"
       license-feature-version="2.0.2.qualifier">
@@ -32,7 +32,7 @@
          id="ru.yanygin.dt.cfbuilder.plugin.ui"
          download-size="0"
          install-size="0"
-         version="1.3.6.qualifier"
+         version="1.3.7.qualifier"
          unpack="false"/>
 
 </feature>
