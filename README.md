@@ -1,15 +1,16 @@
 # ***EDT CF-builder***
 
 [![Download](https://img.shields.io/github/release/YanSergey/edt.cf_builder?label=download&style=flat)](https://github.com/YanSergey/edt.cf_builder/releases/latest)
-[![GitHub Releases](https://img.shields.io/github/downloads/YanSergey/edt.cf_builder/latest/total?style=flat-square)](https://github.com/YanSergey/edt.cf_builder/releases)
+[![GitHub Releases](https://img.shields.io/github/downloads/YanSergey/edt.cf_builder/latest/total?style=flat-square)](https://github.com/YanSergey/edt.cf_builder/latest)
 [![GitHub All Releases](https://img.shields.io/github/downloads/YanSergey/edt.cf_builder/total?style=flat-square)](https://github.com/YanSergey/edt.cf_builder/releases)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=YanSergey_EDT_CF_Builder&metric=alert_status)](https://sonarcloud.io/dashboard?id=YanSergey_EDT_CF_Builder)
 [![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=YanSergey_EDT_CF_Builder&metric=reliability_rating)](https://sonarcloud.io/dashboard?id=YanSergey_EDT_CF_Builder)
 [![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=YanSergey_EDT_CF_Builder&metric=security_rating)](https://sonarcloud.io/dashboard?id=YanSergey_EDT_CF_Builder)
 [![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=YanSergey_EDT_CF_Builder&metric=sqale_rating)](https://sonarcloud.io/dashboard?id=YanSergey_EDT_CF_Builder)
 
-# Плагин для [1C:Enterprise Development Tools](https://edt.1c.ru/) для работы с CF/CFE-файлами.
+# Плагин для [1C:Enterprise Development Tools](https://edt.1c.ru/) для работы с CF/CFE-файлами
 
+[Поддержать проект](https://github.com/YanSergey/Donater)\
 [Установка плагина в 1C:EDT](#Установка)\
 [Таблица совместимости версий плагина с версиями 1C:EDT](#таблица-совместимости-версий-плагина-с-версиями-edt)
 
@@ -88,24 +89,24 @@
 ### Таблица совместимости версий плагина с версиями EDT:
 Версия EDT              |Версия плагина
 -------------           |-------------
-1.16 - 2020.5           |1.0.0 - 1.2.0
-2020.6                  |1.3.0
-2021.1.0 - 2021.1.7     |1.3.1
-2021.2.0 - 2021.2.12    |1.3.2
-2021.3.0 - 2021.3.4     |1.3.3
-2022.1.0 - 2022.1.5     |1.3.4
-2022.2.0 - ...          |1.3.5 (сайт обновлений)
+2026.2                  | (**готовится выпуск**)
+2026.1 (2026.1.3)       |[Скачать 1.3.7](https://github.com/YanSergey/edt.cf_builder/releases/tag/1.3.7) или [Сайт обновлений](#2-через-сайт-обновлений)
+2025.2 (2025.2.6)       |[Скачать 1.3.6](https://github.com/YanSergey/edt.cf_builder/releases/tag/1.3.6)
 2023 - 2024             | Проект был в заморозке, совместимость с версиями неизвестна
-2025.2 (2025.2.6)       |1.3.6 (**готовится выпуск**)
-2026.1 (2026.1.3)       |1.3.7 (**готовится выпуск**)
-2026.2                  |...
+2022.2.0 - ...          |1.3.5 (сайт обновлений)
+2022.1.0 - 2022.1.5     |1.3.4
+2021.3.0 - 2021.3.4     |1.3.3
+2021.2.0 - 2021.2.12    |1.3.2
+2021.1.0 - 2021.1.7     |1.3.1
+2020.6                  |1.3.0
+1.16 - 2020.5           |1.0.0 - 1.2.0
 
 На сайте обновлений находится версия плагина для последней релизной версии EDT.
 
 ---
 ### Сборка из исходников:
 1. Склонировать проект
-2. Запустить консоль в папке подкаталоге **bundles**
+2. Запустить консоль в корневом каталоге проекта
 3. Выполнить команду **mvn clean verify -P,find-bugs -Dtycho.localArtifacts=ignore**
 
 ---
