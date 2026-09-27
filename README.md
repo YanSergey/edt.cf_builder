@@ -1,7 +1,7 @@
 # ***EDT CF-builder***
 
 [![Download](https://img.shields.io/github/release/YanSergey/edt.cf_builder?label=download&style=flat)](https://github.com/YanSergey/edt.cf_builder/releases/latest)
-[![GitHub Releases](https://img.shields.io/github/downloads/YanSergey/edt.cf_builder/latest/total?style=flat-square)](https://github.com/YanSergey/edt.cf_builder/latest)
+[![GitHub Releases](https://img.shields.io/github/downloads/YanSergey/edt.cf_builder/latest/total?style=flat-square)](https://github.com/YanSergey/edt.cf_builder/releases/latest)
 [![GitHub All Releases](https://img.shields.io/github/downloads/YanSergey/edt.cf_builder/total?style=flat-square)](https://github.com/YanSergey/edt.cf_builder/releases)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=YanSergey_EDT_CF_Builder&metric=alert_status)](https://sonarcloud.io/dashboard?id=YanSergey_EDT_CF_Builder)
 [![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=YanSergey_EDT_CF_Builder&metric=reliability_rating)](https://sonarcloud.io/dashboard?id=YanSergey_EDT_CF_Builder)
@@ -9,6 +9,7 @@
 [![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=YanSergey_EDT_CF_Builder&metric=sqale_rating)](https://sonarcloud.io/dashboard?id=YanSergey_EDT_CF_Builder)
 
 # Плагин для [1C:Enterprise Development Tools](https://edt.1c.ru/) для работы с CF/CFE-файлами
+## *Cовместим с версиями 1C:EDT **2025.2, 2026.1, 2026.2***
 
 [Поддержать проект](https://github.com/YanSergey/Donater)\
 [Установка плагина в 1C:EDT](#Установка)\
@@ -84,12 +85,10 @@
 ---
 **Плагин совместим с версиями 1C:EDT, установленными через 1C:EDT Starter**
 
-Тестировался на версиях 1.16 - 2022.2
-
 ### Таблица совместимости версий плагина с версиями EDT:
 Версия EDT              |Версия плагина
 -------------           |-------------
-2026.2                  | (**готовится выпуск**)
+2026.2 (2026.2.1)       |[Скачать 1.3.7](https://github.com/YanSergey/edt.cf_builder/releases/tag/1.3.7) или [Сайт обновлений](#2-через-сайт-обновлений)
 2026.1 (2026.1.3)       |[Скачать 1.3.7](https://github.com/YanSergey/edt.cf_builder/releases/tag/1.3.7) или [Сайт обновлений](#2-через-сайт-обновлений)
 2025.2 (2025.2.6)       |[Скачать 1.3.6](https://github.com/YanSergey/edt.cf_builder/releases/tag/1.3.6)
 2023 - 2024             | Проект был в заморозке, совместимость с версиями неизвестна
